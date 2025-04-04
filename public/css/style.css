@@ -1,0 +1,20 @@
+#inventory {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(5, 50px);
+    gap: 5px;
+}
+
+.slot {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #fff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

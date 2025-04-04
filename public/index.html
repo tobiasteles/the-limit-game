@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>The Limit - MMORPG</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="auth-container">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Senha">
+        <button id="loginBtn">Entrar</button>
+        <button id="signupBtn">Cadastrar</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Firebase SDK como módulos -->
+    <script type="module">
+         import { app, auth, db } from './js/firebase/firebase-config.js';
+        import { signUp, signIn } from './js/firebase/auth.js';
+        import { Player } from './js/game/Player.js';
+        import { GameEngine } from './js/game/GameEngine.js';
+
+        // Configurar listeners de botão
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                await signIn(email, password);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById('signupBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                await signUp(email, password);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Inicializar autenticação
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
+        
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                GameEngine.init(user.uid);
+                document.getElementById('auth-container').style.display = 'none';
+            } else {
+                document.getElementById('auth-container').style.display = 'block';
+            }
+        });
+
+        window.GameEngine = GameEngine; // Para acesso no console
+    </script>
+</body>
+</html>
