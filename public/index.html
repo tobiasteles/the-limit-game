@@ -13,13 +13,14 @@
         <button id="signupBtn">Cadastrar</button>
     </div>
     <canvas id="gameCanvas"></canvas>
-
+<script src="/public/js/main.js"></script>
     <!-- Firebase SDK como módulos -->
     <script type="module">
-         import { app, auth, db } from './js/firebase/firebase-config.js';
-        import { signUp, signIn } from './js/firebase/auth.js';
-        import { Player } from './js/game/Player.js';
-        import { GameEngine } from './js/game/GameEngine.js';
+         import { app, auth, db } from '/public/js/firebase/firebase-config.js';
+         
+        import { signUp, signIn } from '/public/js/firebase/auth.js';
+        import { Player } from '/public/js/game/Player.js';
+        import { GameEngine } from '/public/js/game/GameEngine.js';
 
         // Configurar listeners de botão
         document.getElementById('loginBtn').addEventListener('click', async () => {

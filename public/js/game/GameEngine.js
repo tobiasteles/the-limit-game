@@ -1,3 +1,6 @@
+import { Player } from './Player.js';
+import { Monster } from './Monster.js';
+
 export class GameEngine {
     static async init(uid) {
         this.player = await Player.load(uid);
