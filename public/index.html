@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>The Limit - MMORPG</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div id="auth-container">
         <input type="email" id="email" placeholder="Email">
@@ -12,12 +14,34 @@
         <button id="loginBtn">Entrar</button>
         <button id="signupBtn">Cadastrar</button>
     </div>
-    <canvas id="gameCanvas"></canvas>
-<script src="/public/js/main.js"></script>
+
+
+    <!-- Interface do Jogo (HUD) -->
+    <div id="hud">
+        <div class="health-bar">
+            <div class="health-fill"></div>
+        </div>
+        <div class="xp-bar">
+            <div class="xp-fill"></div>
+        </div>
+        <div class="level">
+            Level: <span id="level">1</span>
+        </div>
+    </div>
+
+    <!-- Inventário -->
+    <div id="inventory-ui" class="hidden">
+        <div class="inventory-grid">
+            <!-- Itens serão adicionados via JavaScript -->
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="1000" height="600"></canvas>
+    <script src="/public/js/main.js"></script>
     <!-- Firebase SDK como módulos -->
     <script type="module">
-         import { app, auth, db } from '/public/js/firebase/firebase-config.js';
-         
+        import { app, auth, db } from '/public/js/firebase/firebase-config.js';
+
         import { signUp, signIn } from '/public/js/firebase/auth.js';
         import { Player } from '/public/js/game/Player.js';
         import { GameEngine } from '/public/js/game/GameEngine.js';
@@ -45,7 +69,7 @@
 
         // Inicializar autenticação
         import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
-        
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 GameEngine.init(user.uid);
@@ -58,4 +82,5 @@
         window.GameEngine = GameEngine; // Para acesso no console
     </script>
 </body>
+
 </html>

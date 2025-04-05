@@ -1,15 +1,19 @@
-import { Player } from './Player.js';
-import { Monster } from './Monster.js';
+import { Player } from '/public/js/game/Player.js';
+import { Monster } from '/public/js/game/Monster.js';
 
 export class GameEngine {
     static async init(uid) {
         this.player = await Player.load(uid);
         this.monsters = [];
+        this.lootItems = [];
+        this.particles = [];
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.lastFrame = performance.now();
         this.movementVector = { x: 0, y: 0 };
         this.spawnTimer = 0;
+        this.cameraOffsetX = 0;
+        this.cameraOffsetY = 0;
         
         this.setupControls();
         this.gameLoop();
@@ -44,22 +48,93 @@ export class GameEngine {
             this.spawnTimer = 0;
         }
         
-        // Checar colisões entre jogador e monstros
+        // Checar colisões e atualizar partículas
         this.checkCollisions();
+        this.updateParticles(delta);
     }
 
     static render() {
         // Limpar canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Atualizar câmera e aplicar transformação
+        this.updateCamera();
+        this.ctx.save();
+        this.ctx.translate(-this.cameraOffsetX, -this.cameraOffsetY);
+
+        // Desenhar fundo semi-transparente
+        this.ctx.fillStyle = 'rgba(46, 204, 113, 0.1)';
+        this.ctx.fillRect(this.cameraOffsetX, this.cameraOffsetY, this.canvas.width, this.canvas.height);
         
-        // Desenhar jogador
-        this.ctx.fillStyle = '#2ecc71';
-        this.ctx.fillRect(this.player.position.x - 10, this.player.position.y - 10, 20, 20);
+        // Renderizar partículas, jogador e monstros
+        this.renderParticles();
+        this.drawPlayer();
+        this.drawMonsters();
+
+        this.ctx.restore();
+    }
+    
+    static drawPlayer() {
+        const size = 20;
+        const { x, y } = this.player.position;
         
-        // Desenhar monstros
-        this.ctx.fillStyle = '#e74c3c';
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        
+        if (this.movementVector.x !== 0 || this.movementVector.y !== 0) {
+            const angle = Math.atan2(this.movementVector.y, this.movementVector.x);
+            this.ctx.rotate(angle + Math.PI/2);
+        }
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, -size);
+        this.ctx.lineTo(-size/2, size);
+        this.ctx.lineTo(size/2, size);
+        this.ctx.closePath();
+        
+        const gradient = this.ctx.createLinearGradient(0, -size, 0, size);
+        gradient.addColorStop(0, '#2ecc71');
+        gradient.addColorStop(1, '#27ae60');
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = '#34495e';
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+        
+        this.ctx.restore();
+    }
+    
+    static drawMonsters() {
         this.monsters.forEach(monster => {
-            this.ctx.fillRect(monster.position.x - 8, monster.position.y - 8, 16, 16);
+            const { x, y } = monster.position;
+            const radius = 16;
+            const sides = 6;
+    
+            this.ctx.beginPath();
+            this.ctx.moveTo(x + radius * Math.cos(0), y + radius * Math.sin(0));
+            for (let i = 1; i <= sides; i++) {
+                const angle = (i * 2 * Math.PI) / sides;
+                this.ctx.lineTo(
+                    x + radius * Math.cos(angle),
+                    y + radius * Math.sin(angle)
+                );
+            }
+            
+            const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
+            gradient.addColorStop(0, '#e74c3c');
+            gradient.addColorStop(1, '#c0392b');
+            
+            this.ctx.fillStyle = gradient;
+            this.ctx.fill();
+            
+            // Olhos
+            this.ctx.beginPath();
+            this.ctx.arc(x - 5, y - 5, 3, 0, Math.PI * 2);
+            this.ctx.arc(x + 5, y - 5, 3, 0, Math.PI * 2);
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fill();
         });
     }
 
@@ -71,6 +146,12 @@ export class GameEngine {
                 case 'ArrowDown': this.movementVector.y = speed; break;
                 case 'ArrowLeft': this.movementVector.x = -speed; break;
                 case 'ArrowRight': this.movementVector.x = speed; break;
+                case 'i':
+                case 'I': {
+                    const inventory = document.getElementById('inventory-ui');
+                    inventory.classList.toggle('hidden');
+                    break;
+                }
             }
         });
         document.addEventListener('keyup', (e) => {
@@ -89,46 +170,91 @@ export class GameEngine {
     }
     
     static checkCollisions() {
-        this.monsters.forEach((monster) => {
-            // Colisão simples usando distância (AABB pode ser substituído por outro método)
-            const distance = Math.sqrt(
-                Math.pow(this.player.position.x - monster.position.x, 2) +
-                Math.pow(this.player.position.y - monster.position.y, 2)
+        this.monsters.forEach(monster => {
+            const distance = Math.hypot(
+                this.player.position.x - monster.position.x,
+                this.player.position.y - monster.position.y
             );
-            
-            if (distance < 24) { // Raio de 24 pixels
-                // Iniciar combate
+            if (distance < 24) {
                 this.startCombat(monster);
-                
-                // Empurrar o jogador
-                const angle = Math.atan2(
-                    this.player.position.y - monster.position.y,
-                    this.player.position.x - monster.position.x
-                );
-                
-                this.player.position.x += Math.cos(angle) * 30;
-                this.player.position.y += Math.sin(angle) * 30;
             }
         });
     }
 
     static startCombat(monster) {
-        // Lógica de combate básica
-        const playerDamage = this.player.level * 2;
+        const isCritical = Math.random() < 0.1;
+        const baseDamage = this.player.level * (isCritical ? 3 : 2);
+        const playerDamage = baseDamage + Math.random() * 5;
+
         if (monster.takeDamage(playerDamage)) {
             this.player.gainXP(monster.level * 10);
+            this.spawnLoot(monster.position);
             this.monsters.splice(this.monsters.indexOf(monster), 1);
         }
-        
-        // Dano ao jogador
+
+        this.showDamageText(playerDamage, monster.position, isCritical);
+
         this.player.health -= monster.attack;
         if (this.player.health <= 0) {
             this.gameOver();
         }
     }
 
+    static spawnLoot(position) {
+        const loot = {
+            type: ['gold', 'potion', 'equipment'][Math.floor(Math.random() * 3)],
+            amount: Math.floor(Math.random() * 10) + 1,
+            position: position
+        };
+        this.lootItems.push(loot);
+    }
+    
     static gameOver() {
         console.log("Game Over!");
-        // Lógica adicional de fim de jogo aqui
+        // Lógica adicional de fim de jogo
+    }
+    
+    static showDamageText(damage, position, isCritical) {
+        console.log(`Damage: ${damage} at (${position.x}, ${position.y}) ${isCritical ? '(Critical)' : ''}`);
+    }
+
+    static createParticles(position, count, color) {
+        for (let i = 0; i < count; i++) {
+            this.particles.push({
+                x: position.x,
+                y: position.y,
+                vx: (Math.random() - 0.5) * 5,
+                vy: (Math.random() - 0.5) * 5,
+                life: 1,
+                color: color
+            });
+        }
+    }
+
+    static updateParticles(delta) {
+        this.particles.forEach((p, index) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.02;
+            if (p.life <= 0) {
+                this.particles.splice(index, 1);
+            }
+        });
+    }
+
+    static renderParticles() {
+        this.particles.forEach(p => {
+            this.ctx.globalAlpha = p.life;
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+        });
+        this.ctx.globalAlpha = 1;
+    }
+
+    static updateCamera() {
+        const canvasCenterX = this.canvas.width / 2;
+        const canvasCenterY = this.canvas.height / 2;
+        this.cameraOffsetX = this.player.position.x - canvasCenterX;
+        this.cameraOffsetY = this.player.position.y - canvasCenterY;
     }
 }

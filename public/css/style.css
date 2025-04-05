@@ -18,3 +18,61 @@
     align-items: center;
     justify-content: center;
 }
+
+#hud, #inventory-ui {
+    position: fixed;
+    z-index: 1000; /* Valor alto para ficar acima de tudo */
+}
+
+#gameCanvas {
+    position: fixed;
+    z-index: 1; /* Valor baixo para ficar abaixo da UI */
+    left: 0;
+    top: 0;
+}
+
+/* No CSS */
+#hud {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 200px;
+}
+
+.health-bar, .xp-bar {
+    background: #333;
+    height: 20px;
+    margin: 5px 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.health-fill {
+    background: #e74c3c;
+    height: 100%;
+    width: 100%;
+    transition: width 0.3s ease;
+}
+
+.xp-fill {
+    background: #2ecc71;
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+#gameCanvas {
+    border: 2px solid #2c3e50;
+    border-radius: 5px;
+    background: #ecf0f1;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #2c3e50;
+}
+
+#gameCanvas {
+    background: #34495e;
+}
