@@ -46,7 +46,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         // Redirecionar para o jogo posteriormente
         // Após login bem-sucedido:
 if (userCredential.user) {
-    window.location.href = '/character-creation.html';
+    window.location.href = './character-creation.html';
 }
 
 // Na página de criação de personagem:
