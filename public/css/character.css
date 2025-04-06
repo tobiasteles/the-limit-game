@@ -1,0 +1,69 @@
+.creation-container {
+    background: #1A1A1A;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 800px;
+    margin: 2rem auto;
+}
+
+.creation-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.class-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.class-card {
+    background: #2C2C2C;
+    padding: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.class-card:hover {
+    border-color: #7F00FF;
+}
+
+.class-card.selected {
+    border-color: #00FFAA;
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+}
+
+.character-preview {
+    text-align: center;
+}
+
+.sprite {
+    width: 150px;
+    height: 200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.head {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    position: absolute;
+    left: 55px;
+    top: 20px;
+    border-radius: 50%;
+}
+
+.body {
+    width: 50px;
+    height: 70px;
+    background: #ccc;
+    position: absolute;
+    left: 50px;
+    top: 60px;
+}
+
+/* Estilos para diferentes classes serão adicionados via JavaScript */

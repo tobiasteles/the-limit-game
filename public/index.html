@@ -1,208 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>The Limit - MMORPG</title>
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* Estilos gerais */
-    .hidden { display: none !important; }
-
-    /* Debug Panel */
-    #debug-panel {
-      background: rgba(255,255,255,0.9);
-      padding: 10px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
-      font-family: monospace;
-      font-size: 0.9em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>The Limit - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
-  <!-- Painel de Debug -->
-  <div id="debug-panel">
-    Auth Container Display: <span id="auth-status"></span><br>
-    Character Creation Display: <span id="char-status"></span><br>
-    User UID: <span id="user-uid"></span>
-  </div>
-
-  <!-- Tela de Login -->
-  <div id="auth-container" class="hidden">
-    <h2>Login</h2>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Senha" required>
-    <button id="loginBtn">Entrar</button>
-    <button id="signupBtn">Cadastrar</button>
-  </div>
-
-  <!-- Interface do Jogo (HUD) -->
-  <div id="hud" class="hidden">
-    <div class="health-bar">
-      <div class="health-fill"></div>
-    </div>
-    <div class="xp-bar">
-      <div class="xp-fill"></div>
-    </div>
-    <div class="level">
-      Level: <span id="level">1</span>
-    </div>
-  </div>
-
-  <!-- Inventário -->
-  <div id="inventory-ui" class="hidden">
-    <div class="inventory-grid">
-      <!-- Itens serão adicionados via JavaScript -->
-    </div>
-  </div>
-
-  <!-- Tela de Criação de Personagem -->
-  <div id="character-creation" class="hidden">
-    <div class="creation-box">
-      <h2>Crie seu Personagem</h2>
-      <input type="text" id="character-name" placeholder="Nome do Personagem" maxlength="20">
-      <div class="appearance-options">
-        <div class="color-picker">
-          <h3>Cor Principal:</h3>
-          <input type="color" id="character-color" value="#2ecc71">
+    <div class="auth-container">
+        <div class="logo-header">
+            <h1>THE LIMIT</h1>
+            <div class="neon-border"></div>
         </div>
-        <div class="sprite-preview">
-          <div id="character-preview"></div>
+        
+        <div id="auth-forms">
+            <!-- Formulário de Login -->
+            <form id="loginForm" class="auth-form">
+                <input type="email" id="loginEmail" placeholder="E-mail" required>
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+                <button type="submit" class="neon-button">ACESSAR PORTAL</button>
+            </form>
+            
+            <!-- Formulário de Cadastro -->
+            <form id="registerForm" class="auth-form hidden">
+                <input type="text" id="registerName" placeholder="Nome do Herói" required>
+                <input type="email" id="registerEmail" placeholder="E-mail" required>
+                <input type="password" id="registerPassword" placeholder="Senha" required>
+                <button type="submit" class="neon-button">CRIAR CONTA</button>
+            </form>
+            
+            <div class="auth-links">
+                <a href="#" id="toggleRegister">Criar nova conta</a>
+                <a href="#" id="toggleLogin">Já tenho uma conta</a>
+            </div>
         </div>
-      </div>
-      <button id="save-character">Jogar!</button>
     </div>
-  </div>
 
-  <!-- Game Canvas -->
-  <canvas id="gameCanvas" width="1000" height="600" class="hidden"></canvas>
-
-  <!-- Scripts: Firebase e Lógica do Jogo -->
-  <script type="module">
-    // Importações do Firebase e módulos do jogo
-    import { app, auth, db } from './js/firebase/firebase-config.js';
-    import { signUp, signIn } from './js/firebase/auth.js';
-    import { Player } from './js/game/Player.js';
-    import { GameEngine } from './js/game/GameEngine.js';
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
-    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js';
-
-    // Mapeamento dos elementos DOM
-    const elements = {
-      authContainer: document.getElementById('auth-container'),
-      hud: document.getElementById('hud'),
-      inventoryUI: document.getElementById('inventory-ui'),
-      characterCreation: document.getElementById('character-creation'),
-      gameCanvas: document.getElementById('gameCanvas'),
-      debugAuthStatus: document.getElementById('auth-status'),
-      debugCharStatus: document.getElementById('char-status'),
-      userUID: document.getElementById('user-uid'),
-      email: document.getElementById('email'),
-      password: document.getElementById('password')
-    };
-
-    // Funções utilitárias para mostrar/ocultar elementos
-    const showElement = (el, display = 'block') => {
-      el.style.display = display;
-      el.classList.remove('hidden');
-    };
-    const hideElement = (el) => {
-      el.style.display = 'none';
-      el.classList.add('hidden');
-    };
-
-    // Atualização do painel de debug
-    function updateDebug() {
-      elements.debugAuthStatus.textContent = getComputedStyle(elements.authContainer).display;
-      elements.debugCharStatus.textContent = getComputedStyle(elements.characterCreation).display;
-    }
-
-    // Eventos de clique para Login e Cadastro
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      try {
-        await signIn(elements.email.value, elements.password.value);
-      } catch (error) {
-        alert(error.message);
-      }
-    });
-
-    document.getElementById('signupBtn').addEventListener('click', async () => {
-      try {
-        await signUp(elements.email.value, elements.password.value);
-        alert('Cadastro realizado! Faça login.');
-      } catch (error) {
-        alert(error.message);
-      }
-    });
-
-    // Gerenciamento do estado de autenticação com Firebase
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        elements.userUID.textContent = user.uid;
-        // Verifica se o jogador já possui registro no Firestore
-        const playerDoc = await getDoc(doc(db, "players", user.uid));
-        if (!playerDoc.exists()) {
-          // Se for novo, exibe a tela de criação de personagem
-          showCharacterCreation(user.uid);
-        } else {
-          // Se já existe, inicia o jogo
-          startGame(user.uid);
-        }
-      } else {
-        // Se não há usuário logado, exibe a tela de login
-        showLoginScreen();
-        elements.userUID.textContent = 'null';
-      }
-      updateDebug();
-    });
-
-    // Exibição da tela de criação de personagem e configuração dos eventos
-    function showCharacterCreation(uid) {
-      hideElement(elements.authContainer);
-      showElement(elements.characterCreation, 'flex');
-      // Configuração do botão para salvar personagem
-      document.getElementById('save-character').onclick = async () => {
-        const player = new Player(uid);
-        player.name = document.getElementById('character-name').value;
-        player.color = document.getElementById('character-color').value;
-        await player.save();
-        startGame(uid);
-      };
-      // Atualiza a pré-visualização da cor conforme a seleção do usuário
-      document.getElementById('character-color').addEventListener('input', (e) => {
-        document.getElementById('character-preview').style.backgroundColor = e.target.value;
-      });
-    }
-
-    // Inicializa o jogo, ocultando telas desnecessárias e mostrando o canvas e HUD
-    function startGame(uid) {
-      hideElement(elements.characterCreation);
-      showElement(elements.gameCanvas);
-      showElement(elements.hud);
-      GameEngine.init(uid);
-    }
-
-    // Exibe a tela de login e oculta os demais elementos do jogo
-    function showLoginScreen() {
-      showElement(elements.authContainer);
-      hideElement(elements.characterCreation);
-      hideElement(elements.gameCanvas);
-      hideElement(elements.hud);
-    }
-
-    // Inicializa alguns eventos após o carregamento do DOM
-    document.addEventListener('DOMContentLoaded', () => {
-      // Debug inicial para verificação dos elementos
-      console.log('Elementos iniciais:', {
-        authContainer: elements.authContainer,
-        characterCreation: elements.characterCreation,
-        gameCanvas: elements.gameCanvas,
-        hud: elements.hud
-      });
-      updateDebug();
-    });
-  </script>
+    <script type="module" src="js/firebase/firebase-config.js"></script>
+    <script type="module" src="js/firebase/auth.js"></script>
 </body>
 </html>

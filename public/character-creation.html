@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Criação de Personagem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/character.css">
+</head>
+<body>
+    <div class="creation-container">
+        <div class="logo-header">
+            <h1>CRIAÇÃO DE HERÓI</h1>
+            <div class="neon-border"></div>
+        </div>
+        
+        <div class="creation-content">
+            <div class="class-selector">
+                <!-- Classes serão adicionadas via JavaScript -->
+            </div>
+            
+            <div class="character-preview">
+                <div class="sprite" id="sprite">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                    <div class="left-arm"></div>
+                    <div class="right-arm"></div>
+                    <div class="legs"></div>
+                </div>
+                <input type="text" id="characterName" placeholder="Nome do Herói" maxlength="20">
+                <button id="createCharacter" class="neon-button">CONFIRMAR CRIAÇÃO</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase/firebase-config.js"></script>
+    <script type="module" src="js/game/Player.js"></script>
+    <script type="module" src="js/firebase/auth.js"></script>
+    <script type="module" src="js/firebase/db.js"></script>
+</body>
+</html>
