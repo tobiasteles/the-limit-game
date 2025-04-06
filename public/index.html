@@ -1,95 +1,208 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-    <title>The Limit - MMORPG</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>The Limit - MMORPG</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Estilos gerais */
+    .hidden { display: none !important; }
+
+    /* Debug Panel */
+    #debug-panel {
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+  </style>
 </head>
-
 <body>
-    <div id="auth-container">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Senha">
-        <button id="loginBtn">Entrar</button>
-        <button id="signupBtn">Cadastrar</button>
+  <!-- Painel de Debug -->
+  <div id="debug-panel">
+    Auth Container Display: <span id="auth-status"></span><br>
+    Character Creation Display: <span id="char-status"></span><br>
+    User UID: <span id="user-uid"></span>
+  </div>
+
+  <!-- Tela de Login -->
+  <div id="auth-container" class="hidden">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Senha" required>
+    <button id="loginBtn">Entrar</button>
+    <button id="signupBtn">Cadastrar</button>
+  </div>
+
+  <!-- Interface do Jogo (HUD) -->
+  <div id="hud" class="hidden">
+    <div class="health-bar">
+      <div class="health-fill"></div>
     </div>
-
-
-    <!-- Interface do Jogo (HUD) -->
-    <div id="hud">
-        <div class="health-bar">
-            <div class="health-fill"></div>
-        </div>
-        <div class="xp-bar">
-            <div class="xp-fill"></div>
-        </div>
-        <div class="level">
-            Level: <span id="level">1</span>
-        </div>
+    <div class="xp-bar">
+      <div class="xp-fill"></div>
     </div>
-
-    <!-- Inventário -->
-    <div id="inventory-ui" class="hidden">
-        <div class="inventory-grid">
-            <!-- Itens serão adicionados via JavaScript -->
-        </div>
+    <div class="level">
+      Level: <span id="level">1</span>
     </div>
+  </div>
 
-    <canvas id="gameCanvas" width="1000" height="600"></canvas>
+  <!-- Inventário -->
+  <div id="inventory-ui" class="hidden">
+    <div class="inventory-grid">
+      <!-- Itens serão adicionados via JavaScript -->
+    </div>
+  </div>
 
-    <!-- Firebase SDK como módulos -->
-    <script type="module">
-        import { app, auth, db } from './js/firebase/firebase-config.js';
-        import { signUp, signIn } from './js/firebase/auth.js';
-        import { Player } from './js/game/Player.js';
-        import { GameEngine } from './js/game/GameEngine.js';
+  <!-- Tela de Criação de Personagem -->
+  <div id="character-creation" class="hidden">
+    <div class="creation-box">
+      <h2>Crie seu Personagem</h2>
+      <input type="text" id="character-name" placeholder="Nome do Personagem" maxlength="20">
+      <div class="appearance-options">
+        <div class="color-picker">
+          <h3>Cor Principal:</h3>
+          <input type="color" id="character-color" value="#2ecc71">
+        </div>
+        <div class="sprite-preview">
+          <div id="character-preview"></div>
+        </div>
+      </div>
+      <button id="save-character">Jogar!</button>
+    </div>
+  </div>
 
-        // Configurar listeners de botão
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try {
-                await signIn(email, password);
-            } catch (error) {
-                alert(error.message);
-            }
-        });
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas" width="1000" height="600" class="hidden"></canvas>
 
-        document.getElementById('signupBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try {
-                await signUp(email, password);
-            } catch (error) {
-                alert(error.message);
-            }
-        });
+  <!-- Scripts: Firebase e Lógica do Jogo -->
+  <script type="module">
+    // Importações do Firebase e módulos do jogo
+    import { app, auth, db } from './js/firebase/firebase-config.js';
+    import { signUp, signIn } from './js/firebase/auth.js';
+    import { Player } from './js/game/Player.js';
+    import { GameEngine } from './js/game/GameEngine.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js';
 
-        // Inicializar autenticação
-        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
+    // Mapeamento dos elementos DOM
+    const elements = {
+      authContainer: document.getElementById('auth-container'),
+      hud: document.getElementById('hud'),
+      inventoryUI: document.getElementById('inventory-ui'),
+      characterCreation: document.getElementById('character-creation'),
+      gameCanvas: document.getElementById('gameCanvas'),
+      debugAuthStatus: document.getElementById('auth-status'),
+      debugCharStatus: document.getElementById('char-status'),
+      userUID: document.getElementById('user-uid'),
+      email: document.getElementById('email'),
+      password: document.getElementById('password')
+    };
 
-        let gameInitialized = false;
+    // Funções utilitárias para mostrar/ocultar elementos
+    const showElement = (el, display = 'block') => {
+      el.style.display = display;
+      el.classList.remove('hidden');
+    };
+    const hideElement = (el) => {
+      el.style.display = 'none';
+      el.classList.add('hidden');
+    };
 
-        onAuthStateChanged(auth, (user) => {
-            if (user && !gameInitialized) {
-                GameEngine.init(user.uid);
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('gameCanvas').style.display = 'block';
-                document.getElementById('hud').style.display = 'block';
-                gameInitialized = true;
-            } else if (!user) {
-                document.getElementById('auth-container').style.display = 'block';
-                document.getElementById('gameCanvas').style.display = 'none';
-                document.getElementById('hud').style.display = 'none';
-                gameInitialized = false;
-            }
-        });
+    // Atualização do painel de debug
+    function updateDebug() {
+      elements.debugAuthStatus.textContent = getComputedStyle(elements.authContainer).display;
+      elements.debugCharStatus.textContent = getComputedStyle(elements.characterCreation).display;
+    }
 
+    // Eventos de clique para Login e Cadastro
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      try {
+        await signIn(elements.email.value, elements.password.value);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
 
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+      try {
+        await signUp(elements.email.value, elements.password.value);
+        alert('Cadastro realizado! Faça login.');
+      } catch (error) {
+        alert(error.message);
+      }
+    });
 
-        window.GameEngine = GameEngine; // Para acesso no console
-    </script>
+    // Gerenciamento do estado de autenticação com Firebase
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        elements.userUID.textContent = user.uid;
+        // Verifica se o jogador já possui registro no Firestore
+        const playerDoc = await getDoc(doc(db, "players", user.uid));
+        if (!playerDoc.exists()) {
+          // Se for novo, exibe a tela de criação de personagem
+          showCharacterCreation(user.uid);
+        } else {
+          // Se já existe, inicia o jogo
+          startGame(user.uid);
+        }
+      } else {
+        // Se não há usuário logado, exibe a tela de login
+        showLoginScreen();
+        elements.userUID.textContent = 'null';
+      }
+      updateDebug();
+    });
+
+    // Exibição da tela de criação de personagem e configuração dos eventos
+    function showCharacterCreation(uid) {
+      hideElement(elements.authContainer);
+      showElement(elements.characterCreation, 'flex');
+      // Configuração do botão para salvar personagem
+      document.getElementById('save-character').onclick = async () => {
+        const player = new Player(uid);
+        player.name = document.getElementById('character-name').value;
+        player.color = document.getElementById('character-color').value;
+        await player.save();
+        startGame(uid);
+      };
+      // Atualiza a pré-visualização da cor conforme a seleção do usuário
+      document.getElementById('character-color').addEventListener('input', (e) => {
+        document.getElementById('character-preview').style.backgroundColor = e.target.value;
+      });
+    }
+
+    // Inicializa o jogo, ocultando telas desnecessárias e mostrando o canvas e HUD
+    function startGame(uid) {
+      hideElement(elements.characterCreation);
+      showElement(elements.gameCanvas);
+      showElement(elements.hud);
+      GameEngine.init(uid);
+    }
+
+    // Exibe a tela de login e oculta os demais elementos do jogo
+    function showLoginScreen() {
+      showElement(elements.authContainer);
+      hideElement(elements.characterCreation);
+      hideElement(elements.gameCanvas);
+      hideElement(elements.hud);
+    }
+
+    // Inicializa alguns eventos após o carregamento do DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      // Debug inicial para verificação dos elementos
+      console.log('Elementos iniciais:', {
+        authContainer: elements.authContainer,
+        characterCreation: elements.characterCreation,
+        gameCanvas: elements.gameCanvas,
+        hud: elements.hud
+      });
+      updateDebug();
+    });
+  </script>
 </body>
-
 </html>

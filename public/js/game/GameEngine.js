@@ -1,5 +1,6 @@
 import { Player } from '../game/Player.js';
 import { Monster } from '../game/Monster.js';
+import { lightenColor, darkenColor } from './utils.js';
 
 export class GameEngine {
     static async init(uid) {
@@ -14,7 +15,7 @@ export class GameEngine {
         this.spawnTimer = 0;
         this.cameraOffsetX = 0;
         this.cameraOffsetY = 0;
-        
+
         this.setupControls();
         this.gameLoop();
     }
@@ -22,25 +23,19 @@ export class GameEngine {
     static gameLoop() {
         const now = performance.now();
         const delta = now - this.lastFrame;
-        
-        // Controle de FPS (60 FPS alvo)
         if (delta > 16.67) {
             this.update(delta);
             this.render();
             this.lastFrame = now - (delta % 16.67);
         }
-        
         requestAnimationFrame(() => this.gameLoop());
     }
 
     static update(delta) {
         const deltaSeconds = delta / 1000;
-        
-        // Movimento suave do jogador
         this.player.position.x += this.movementVector.x * deltaSeconds * 200;
         this.player.position.y += this.movementVector.y * deltaSeconds * 200;
         
-        // Atualizar spawn com base no tempo
         this.spawnTimer += deltaSeconds;
         const monsterLimit = 5 + Math.sqrt(this.player.level);
         if (this.spawnTimer > 2 && this.monsters.length < monsterLimit) {
@@ -48,64 +43,54 @@ export class GameEngine {
             this.spawnTimer = 0;
         }
         
-        // Checar colisões e atualizar partículas
         this.checkCollisions();
         this.updateParticles(delta);
     }
 
     static render() {
-        // Limpar canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Atualizar câmera e aplicar transformação
         this.updateCamera();
         this.ctx.save();
         this.ctx.translate(-this.cameraOffsetX, -this.cameraOffsetY);
-
-        // Desenhar fundo semi-transparente
+        
         this.ctx.fillStyle = 'rgba(46, 204, 113, 0.1)';
         this.ctx.fillRect(this.cameraOffsetX, this.cameraOffsetY, this.canvas.width, this.canvas.height);
         
-        // Renderizar partículas, jogador e monstros
         this.renderParticles();
         this.drawPlayer();
         this.drawMonsters();
-
+        
         this.ctx.restore();
     }
-    
+
     static drawPlayer() {
         const size = 20;
         const { x, y } = this.player.position;
-        
         this.ctx.save();
         this.ctx.translate(x, y);
-        
         if (this.movementVector.x !== 0 || this.movementVector.y !== 0) {
             const angle = Math.atan2(this.movementVector.y, this.movementVector.x);
-            this.ctx.rotate(angle + Math.PI/2);
+            this.ctx.rotate(angle + Math.PI / 2);
         }
-        
         this.ctx.beginPath();
         this.ctx.moveTo(0, -size);
-        this.ctx.lineTo(-size/2, size);
-        this.ctx.lineTo(size/2, size);
+        this.ctx.lineTo(-size / 2, size);
+        this.ctx.lineTo(size / 2, size);
         this.ctx.closePath();
         
+        // Usa a cor do jogador para o gradiente
         const gradient = this.ctx.createLinearGradient(0, -size, 0, size);
-        gradient.addColorStop(0, '#2ecc71');
-        gradient.addColorStop(1, '#27ae60');
+        gradient.addColorStop(0, lightenColor(this.player.color, 20));
+        gradient.addColorStop(1, darkenColor(this.player.color, 20));
         
         this.ctx.fillStyle = gradient;
         this.ctx.fill();
-        
         this.ctx.strokeStyle = '#34495e';
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
-        
         this.ctx.restore();
     }
-    
+
     static drawMonsters() {
         this.monsters.forEach(monster => {
             const { x, y } = monster.position;
@@ -121,11 +106,9 @@ export class GameEngine {
                     y + radius * Math.sin(angle)
                 );
             }
-            
             const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
             gradient.addColorStop(0, '#e74c3c');
             gradient.addColorStop(1, '#c0392b');
-            
             this.ctx.fillStyle = gradient;
             this.ctx.fill();
             
@@ -193,7 +176,6 @@ export class GameEngine {
         }
 
         this.showDamageText(playerDamage, monster.position, isCritical);
-
         this.player.health -= monster.attack;
         if (this.player.health <= 0) {
             this.gameOver();
@@ -211,7 +193,6 @@ export class GameEngine {
     
     static gameOver() {
         console.log("Game Over!");
-        // Lógica adicional de fim de jogo
     }
     
     static showDamageText(damage, position, isCritical) {
@@ -257,4 +238,28 @@ export class GameEngine {
         this.cameraOffsetX = this.player.position.x - canvasCenterX;
         this.cameraOffsetY = this.player.position.y - canvasCenterY;
     }
+}
+
+// Função para clarear uma cor hexadecimal
+function lightenColor(color, percent) {
+    const num = parseInt(color.slice(1), 16);
+    let r = (num >> 16) & 0xFF;
+    let g = (num >> 8) & 0xFF;
+    let b = num & 0xFF;
+    r = Math.min(255, Math.floor(r + (255 - r) * (percent / 100)));
+    g = Math.min(255, Math.floor(g + (255 - g) * (percent / 100)));
+    b = Math.min(255, Math.floor(b + (255 - b) * (percent / 100)));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+// Função para escurecer uma cor hexadecimal
+function darkenColor(color, percent) {
+    const num = parseInt(color.slice(1), 16);
+    let r = (num >> 16) & 0xFF;
+    let g = (num >> 8) & 0xFF;
+    let b = num & 0xFF;
+    r = Math.max(0, Math.floor(r - r * (percent / 100)));
+    g = Math.max(0, Math.floor(g - g * (percent / 100)));
+    b = Math.max(0, Math.floor(b - b * (percent / 100)));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }

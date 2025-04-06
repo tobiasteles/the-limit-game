@@ -1,12 +1,21 @@
 import { auth, db } from '../firebase/firebase-config.js';
 import {
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    signOut
 } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
 import {
     setDoc,
     doc
 } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js';
+
+// Verifique se o Firebase está inicializado
+console.log("Firebase Auth Object:", auth);
+
+// Force um estado de logout para teste
+signOut(auth).then(() => {
+    console.log("Usuário deslogado para teste");
+});
 
 export const signUp = async (email, password) => {
     try {
