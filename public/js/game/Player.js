@@ -1,4 +1,4 @@
-import { playerDB } from '/public/js/firebase/db.js';
+import { playerDB } from '../firebase/db.js';
 
 export class Player {
     constructor(uid) {

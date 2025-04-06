@@ -37,14 +37,13 @@
     </div>
 
     <canvas id="gameCanvas" width="1000" height="600"></canvas>
-    <script src="/public/js/main.js"></script>
+
     <!-- Firebase SDK como módulos -->
     <script type="module">
-        import { app, auth, db } from '/public/js/firebase/firebase-config.js';
-
-        import { signUp, signIn } from '/public/js/firebase/auth.js';
-        import { Player } from '/public/js/game/Player.js';
-        import { GameEngine } from '/public/js/game/GameEngine.js';
+        import { app, auth, db } from './js/firebase/firebase-config.js';
+        import { signUp, signIn } from './js/firebase/auth.js';
+        import { Player } from './js/game/Player.js';
+        import { GameEngine } from './js/game/GameEngine.js';
 
         // Configurar listeners de botão
         document.getElementById('loginBtn').addEventListener('click', async () => {
@@ -70,14 +69,24 @@
         // Inicializar autenticação
         import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
 
+        let gameInitialized = false;
+
         onAuthStateChanged(auth, (user) => {
-            if (user) {
+            if (user && !gameInitialized) {
                 GameEngine.init(user.uid);
                 document.getElementById('auth-container').style.display = 'none';
-            } else {
+                document.getElementById('gameCanvas').style.display = 'block';
+                document.getElementById('hud').style.display = 'block';
+                gameInitialized = true;
+            } else if (!user) {
                 document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('gameCanvas').style.display = 'none';
+                document.getElementById('hud').style.display = 'none';
+                gameInitialized = false;
             }
         });
+
+
 
         window.GameEngine = GameEngine; // Para acesso no console
     </script>

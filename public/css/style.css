@@ -76,3 +76,36 @@ body {
 #gameCanvas {
     background: #34495e;
 }
+
+#auth-container {
+    display: block; /* Garante que está visível inicialmente */
+}
+
+#gameCanvas, #hud, #inventory-ui {
+    display: none; /* Oculta elementos do jogo inicialmente */
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Garanta que esses estilos estão presentes */
+#auth-container {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.7);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#gameCanvas, #hud {
+    display: none; /* Começam escondidos */
+}
+
+#hud {
+    display: none; /* Confirmar que está escondido inicialmente */
+}

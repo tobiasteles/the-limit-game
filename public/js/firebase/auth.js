@@ -1,12 +1,27 @@
-import { auth } from '/public/js/firebase/firebase-config.js';
-import { 
+import { auth, db } from '../firebase/firebase-config.js';
+import {
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword 
+    signInWithEmailAndPassword
 } from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js';
+import {
+    setDoc,
+    doc
+} from 'https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js';
 
 export const signUp = async (email, password) => {
     try {
-        return await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+        await setDoc(doc(db, "players", userCredential.user.uid), {
+            level: 1,
+            xp: 0,
+            health: 100,
+            position: { x: 400, y: 300 },
+            inventory: [],
+            lastLogin: new Date()
+        });
+
+        return userCredential.user;
     } catch (error) {
         throw new Error(getErrorMessage(error.code));
     }

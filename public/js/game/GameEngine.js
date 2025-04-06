@@ -1,5 +1,5 @@
-import { Player } from '/public/js/game/Player.js';
-import { Monster } from '/public/js/game/Monster.js';
+import { Player } from '../game/Player.js';
+import { Monster } from '../game/Monster.js';
 
 export class GameEngine {
     static async init(uid) {
