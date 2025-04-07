@@ -3,93 +3,117 @@ import { playerDB, realtimeDB } from '../firebase/db.js';
 import { Player } from './Player.js';
 
 export function initCharacterCreation() {
-    document.addEventListener('DOMContentLoaded', async () => {
-        console.log('Iniciando criação de personagem...');
+    console.log('Iniciando criação de personagem...');
 
-        const classSelector = document.querySelector('.class-selector');
-        if (!classSelector) return;
+    // Elementos da UI
+    const classSelector = document.querySelector('.class-selector');
+    const createButton = document.getElementById('createCharacter');
+    const characterNameInput = document.getElementById('characterName');
 
-        // Configuração das classes
-        const classes = [
-            { id: 'warrior', color: '#FF5555', weapon: 'Espada Longa' },
-            { id: 'knight', color: '#9999FF', weapon: 'Lança de Cavalaria' },
-            { id: 'archer', color: '#55FF55', weapon: 'Arco Recurvo' },
-            { id: 'mage', color: '#FF55FF', weapon: 'Cajado Elemental' },
-            { id: 'assassin', color: '#5555FF', weapon: 'Adagas Gêmeas' },
-            { id: 'necromancer', color: '#AA00AA', weapon: 'Grimório Sombrio' }
-        ];
+    if (!classSelector || !createButton || !characterNameInput) {
+        console.error('Elementos da UI não encontrados!');
+        return;
+    }
 
-        // Renderização das classes
-        classes.forEach(cls => {
-            const card = document.createElement('div');
-            card.className = 'class-card';
-            card.innerHTML = `
-                <h3>${cls.id.toUpperCase()}</h3>
-                <p>${cls.weapon}</p>
-            `;
-            card.addEventListener('click', (event) => selectClass(event, cls)); // Corrigido aqui
-            classSelector.appendChild(card);
-        });
+    // Configuração das classes
+    const classes = [
+        { id: 'warrior', color: '#FF5555', weapon: 'Espada Longa' },
+        { id: 'knight', color: '#9999FF', weapon: 'Lança de Cavalaria' },
+        { id: 'archer', color: '#55FF55', weapon: 'Arco Recurvo' },
+        { id: 'mage', color: '#FF55FF', weapon: 'Cajado Elemental' },
+        { id: 'assassin', color: '#5555FF', weapon: 'Adagas Gêmeas' },
+        { id: 'necromancer', color: '#AA00AA', weapon: 'Grimório Sombrio' }
+    ];
 
-        // Único listener para o botão
-        document.getElementById('createCharacter').addEventListener('click', async (e) => {
-            e.preventDefault();
-            console.log('Botão clicado');
+    // Renderização das classes
+    classes.forEach(cls => {
+        const card = document.createElement('div');
+        card.className = 'class-card';
+        card.innerHTML = `
+            <h3>${cls.id.toUpperCase()}</h3>
+            <p>${cls.weapon}</p>
+        `;
+        card.dataset.class = cls.id; // Adiciona o dataset
+        card.addEventListener('click', (event) => selectClass(event, cls));
+        classSelector.appendChild(card);
+    });
 
-            const userId = auth.currentUser?.uid;
-            console.log('User ID:', userId);
+    // Evento de criação
+    createButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log('[DEBUG] Botão pressionado - Início do processo');
+        console.log('[DEBUG] Botão de criação clicado');
 
-            if (!userId) {
-                alert('Usuário não autenticado!');
-                return window.location.href = '/';
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                throw new Error('Usuário não autenticado!');
             }
+            console.log('[DEBUG] Usuário autenticado:', user.uid);
 
-            const characterName = document.getElementById('characterName').value;
+            const characterName = characterNameInput.value.trim();
             const selectedClass = document.querySelector('.class-card.selected')?.dataset.class;
+            console.log('[DEBUG] Classe selecionada:', selectedClass);
 
-            if (!selectedClass || !characterName) {
-                alert('Selecione uma classe e digite um nome!');
-                return;
+            // Validação de entrada
+            if (!selectedClass) {
+                throw new Error('Selecione uma classe!');
+            }
+            if (!characterName || characterName.length < 3) {
+                throw new Error('Nome deve ter pelo menos 3 caracteres!');
+            }
+            console.log('[DEBUG] Dados validados:', { characterName, selectedClass });
+
+            // Verifica limite de personagens
+            const canCreate = await playerDB.canCreateNewCharacter(user.uid);
+            if (!canCreate) {
+                throw new Error('Limite de 3 personagens atingido!');
             }
 
-            try {
-                const canCreate = await playerDB.canCreateNewCharacter(userId);
-                if (!canCreate) throw new Error('Limite de 3 personagens atingido!');
+            // Cria dados do personagem
+            const characterData = {
+                name: characterName,
+                class: selectedClass,
+                stats: new Player({ class: selectedClass }).stats,
+                created: new Date().toISOString() // Formato ISO para Firestore
+            };
 
-                const characterData = {
-                    name: characterName,
-                    class: selectedClass,
-                    stats: new Player({ class: selectedClass }).stats,
-                    created: new Date()
-                };
+            console.log('Enviando dados:', characterData);
+            console.log('[DEBUG] Chamando playerDB.createCharacter...');
 
-                console.log('Dados do personagem:', characterData);
-                
-                const characterId = await playerDB.createCharacter(userId, characterData);
-                console.log('Personagem criado com ID:', characterId);
-                
-                await realtimeDB.initPlayerStatus(userId, characterId, characterData.stats);
-                alert('Personagem criado com sucesso!');
-                
+            // Salva no Firestore
+            const characterId = await playerDB.createCharacter(user.uid, characterData);
+            console.log('[DEBUG] Personagem criado com ID:', characterId);
+
+            console.log('[DEBUG] Inicializando status no RTDB...');
+            // Salva status inicial no Realtime Database
+            await realtimeDB.initPlayerStatus(user.uid, characterId, characterData.stats);
+
+            // Feedback e redirecionamento
+            createButton.textContent = '✔️ Personagem Criado!';
+            createButton.disabled = true;
+            setTimeout(() => {
                 window.location.href = '/game.html';
-            } catch (error) {
-                console.error('Erro na criação:', error);
-                alert(`Erro: ${error.message}`);
-            }
-        });
+            }, 1500);
+
+        } catch (error) {
+            console.error('Erro completo:', error);
+            alert(`ERRO: ${error.message}`);
+            createButton.textContent = 'Tentar Novamente';
+        }
     });
 }
 
-// Adicionado parâmetro event
+// Funções auxiliares
 function selectClass(event, cls) {
+    // Remove seleção anterior
     document.querySelectorAll('.class-card').forEach(card => {
         card.classList.remove('selected');
-        card.style.borderColor = '';
     });
-    
-    const selectedCard = event.currentTarget;
-    selectedCard.classList.add('selected');
-    selectedCard.dataset.class = cls.id;
+
+    // Adiciona nova seleção
+    const card = event.currentTarget;
+    card.classList.add('selected');
     updateSpriteVisual(cls);
 }
 
@@ -97,5 +121,6 @@ function updateSpriteVisual(cls) {
     const sprite = document.getElementById('sprite');
     if (sprite) {
         sprite.style.backgroundColor = cls.color;
+        sprite.style.boxShadow = `0 0 15px ${cls.color}`;
     }
 }
