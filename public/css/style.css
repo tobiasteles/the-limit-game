@@ -97,6 +97,7 @@ body {
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+<<<<<<< Updated upstream
     color: white;
     z-index: 1000;
   }
@@ -218,3 +219,15 @@ body {
     background-repeat: no-repeat;
   }
   
+=======
+}
+
+#gameCanvas, #hud {
+    display: none; /* Começam escondidos */
+}
+
+#hud {
+    display: none; /* Confirmar que está escondido inicialmente */
+}
+
+>>>>>>> Stashed changes
