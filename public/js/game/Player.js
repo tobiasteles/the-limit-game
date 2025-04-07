@@ -5,12 +5,12 @@ export class Player {
         this.class = data.class;
         this.level = data.level || 1;
         this.exp = data.exp || 0;
-        this.weapon = data.weapon || this.getInitialWeapon();
-        this.stats = this.getClassStats();
+        this.weapon = this.getInitialWeapon(data.class);
+        this.stats = this.getClassStats(data.class);
         this.spriteConfig = data.spriteConfig || {};
     }
 
-    getInitialWeapon() {
+    getInitialWeapon(characterClass) {
         const weapons = {
             warrior: 'Espada Longa',
             knight: 'Lança de Cavalaria',
@@ -19,10 +19,11 @@ export class Player {
             assassin: 'Adagas Gêmeas',
             necromancer: 'Grimório Sombrio'
         };
-        return weapons[this.class];
+        return weapons[characterClass] || 'Arma Desconhecida';
     }
 
-    getClassStats() {
+    getClassStats(characterClass) {
+        // Status base para todas as classes
         const baseStats = {
             hp: 100,
             mp: 50,
@@ -31,6 +32,7 @@ export class Player {
             agility: 10
         };
 
+        // Modificadores específicos por classe
         const classModifiers = {
             warrior: { hp: +30, attack: +15, defense: +10 },
             knight: { hp: +40, defense: +20, agility: -5 },
@@ -40,6 +42,21 @@ export class Player {
             necromancer: { mp: +30, attack: +25, defense: -10 }
         };
 
-        return Object.assign(baseStats, classModifiers[this.class]);
+        // Aplica modificadores e calcula valores finais
+        const calculatedStats = { ...baseStats };
+        const modifiers = classModifiers[characterClass] || {};
+
+        for (const [stat, value] of Object.entries(modifiers)) {
+            calculatedStats[stat] += value;
+        }
+
+        // Validações para garantir valores mínimos
+        return {
+            hp: Math.max(calculatedStats.hp, 10),       // HP mínimo de 10
+            mp: Math.max(calculatedStats.mp, 10),       // MP mínimo de 10
+            attack: Math.max(calculatedStats.attack, 5),// Ataque mínimo 5
+            defense: Math.max(calculatedStats.defense, 0), // Defesa não pode ser negativa
+            agility: Math.max(calculatedStats.agility, 5) // Agilidade mínima 5
+        };
     }
 }
