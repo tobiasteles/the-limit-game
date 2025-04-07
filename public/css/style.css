@@ -1,233 +1,157 @@
-/* Reset e Base */
-body {
-    margin: 0;
-    overflow: hidden;
-    background: #2c3e50;
-  }
-  
-  /* INVENTÁRIO */
-  #inventory {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(0,0,0,0.7);
-    padding: 10px;
-    display: grid;
-    grid-template-columns: repeat(5, 50px);
-    gap: 5px;
-  }
-  
-  .slot {
-    width: 50px;
-    height: 50px;
-    border: 1px solid #fff;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* HUD e Inventário UI */
-  #hud,
-  #inventory-ui {
-    position: fixed;
-    z-index: 1000;
-  }
-  
-  #hud {
-    top: 20px;
-    left: 20px;
-    width: 200px;
-  }
-  
-  /* Barras de Vida e XP */
-  .health-bar,
-  .xp-bar {
-    background: #333;
-    height: 20px;
-    margin: 5px 0;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
-  .health-fill {
-    background: #e74c3c;
-    height: 100%;
-    width: 100%;
-    transition: width 0.3s ease;
-  }
-  
-  .xp-fill {
-    background: #2ecc71;
-    height: 100%;
-    width: 0;
-    transition: width 0.3s ease;
-  }
-  
-  /* Game Canvas */
-  #gameCanvas {
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    border: 2px solid #2c3e50;
-    border-radius: 5px;
-    background: #34495e;
-  }
-  
-  /* Elementos Iniciais Ocultos */
-  #gameCanvas,
-  #hud,
-  #inventory-ui {
-    display: none;
-  }
-  
-  .hidden {
-    display: none !important;
-  }
-  
-  /* Container de Autenticação */
-  #auth-container {
-    display: block;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-<<<<<<< Updated upstream
-    color: white;
-    z-index: 1000;
-  }
-  
-  /* Painel de Debug */
-  #debug-panel {
-    font-family: monospace;
-    font-size: 14px;
-  }
-  
-  /* Tela de Criação de Personagem */
-  #character-creation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-  }
-  
-  .creation-box {
-    background: #34495e;
-    padding: 2rem;
-    border-radius: 10px;
-    width: 400px;
-  }
-  
-  /* Seleção de Classe */
-  .class-selection {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin: 1rem 0;
-  }
-  
-  .class-card {
-    padding: 1rem;
-    border: 2px solid #34495e;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-align: center;
-  }
-  
-  .class-card:hover {
-    background: rgba(46, 204, 113, 0.1);
-  }
-  
-  .class-card.active {
-    border-color: #2ecc71;
-    background: rgba(46, 204, 113, 0.2);
-  }
-  
-  /* Pré-visualização do Personagem */
-  .character-preview {
-    width: 200px;
-    height: 300px;
-    border: 2px solid #fff;
-    margin: 1rem auto;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  /* Personalização */
-  .appearance-section {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 1rem;
-  }
-  
-  .color-picker-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  /* Elementos Adicionais na Criação */
-  .appearance-options {
-    display: flex;
-    gap: 1rem;
-    margin: 1rem 0;
-  }
-  
-  #character-preview {
-    width: 100px;
-    height: 100px;
-    background: #2ecc71;
-    border-radius: 8px;
-    transition: all 0.3s;
-  }
-  
-  #character-name {
-    width: 100%;
-    padding: 0.5rem;
-    margin: 1rem 0;
-  }
-  
-  .color-picker input {
-    width: 50px;
-    height: 50px;
-  }
-  
-  /* Animação do Personagem */
-  @keyframes idle {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0); }
-  }
-  
-  #character-sprite {
-    animation: idle 3s ease-in-out infinite;
-    width: 100%;
-    height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-  }
-  
-=======
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-#gameCanvas, #hud {
-    display: none; /* Começam escondidos */
+body {
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+#game-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+}
+
+/* Elementos da cidade */
+.road {
+  position: absolute;
+  background: #555;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.horizontal {
+  width: 100%;
+  height: 80px;
+  top: 38%;
+}
+
+.vertical {
+  width: 80px;
+  height: 100%;
+  left: 45%;
+}
+
+.building {
+  position: absolute;
+  background: #c0c0c0;
+  border: 2px solid #999;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.commercial {
+  width: 180px;
+  height: 240px;
+}
+
+.residential {
+  width: 120px;
+  height: 150px;
+  background: #d3d3d3;
+}
+
+.window {
+  background: #aad4ff;
+  margin: 5px;
+  flex: 1 0 25%;
+  height: 30px;
+  border: 1px solid #789;
+}
+
+.park {
+  position: absolute;
+  width: 300px;
+  height: 200px;
+  background: #7BA23F;
+  border: 2px solid #5C7A29;
+  border-radius: 10px;
+  right: 5%;
+  top: 5%;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.tree {
+  width: 25px;
+  height: 40px;
+  background: #3D5A1F;
+  border-radius: 5px 5px 0 0;
+}
+
+.pond {
+  width: 100px;
+  height: 60px;
+  background: #4682B4;
+  border-radius: 10px;
+}
+
+.car {
+  position: absolute;
+  width: 40px;
+  height: 25px;
+  background: #FF4444;
+  border-radius: 3px;
+}
+
+.blue {
+  background: #4A90E2;
+}
+
+.npc {
+  position: absolute;
+  width: 20px;
+  height: 30px;
+  background: #666;
+  border-radius: 3px;
+}
+
+#player {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: #2ECC71;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  transition: all 0.15s ease-out;
+  z-index: 1000;
+}
+
+.portal {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: rgba(127, 0, 255, 0.3);
+  border: 2px solid #7F00FF;
+  border-radius: 50%;
+  left: 45%;
+  top: 38%;
+  animation: portal-pulse 2s infinite;
 }
 
 #hud {
-    display: none; /* Confirmar que está escondido inicialmente */
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
->>>>>>> Stashed changes
+.hud-item {
+  margin: 5px 0;
+  color: #333;
+  font-size: 14px;
+}
+
+@keyframes portal-pulse {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(0.95); }
+}
