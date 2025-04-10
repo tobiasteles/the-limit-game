@@ -4,7 +4,7 @@ import {
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { firebaseConfig } from './firebase-config.js';
+import { firebaseConfig } from './firebase/firebase-config.js';
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
