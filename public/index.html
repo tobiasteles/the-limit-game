@@ -2,47 +2,53 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>The Limit - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Limit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
     <div class="auth-container">
         <div class="logo-header">
-            <h1>THE LIMIT</h1>
-            <div class="neon-border"></div>
+            <h1>The Limit</h1>
         </div>
-        
-        <div id="auth-forms">
+
+
+        <div class="loading-overlay" id="loading">
+    <div class="loader"></div>
+</div>
+        <div class="auth-forms">
             <!-- Formulário de Login -->
-            <form id="loginForm" class="auth-form">
+            <form id="loginForm" class="auth-form active">
                 <input type="email" id="loginEmail" placeholder="E-mail" required>
                 <input type="password" id="loginPassword" placeholder="Senha" required>
-                <button type="submit" class="neon-button">Entrar</button>
+                <button type="submit">ENTRAR NO MUNDO</button>
+                <p class="toggle-form">Não tem conta? <span id="showSignup">Crie uma!</span></p>
             </form>
-            
+
             <!-- Formulário de Cadastro -->
-            <form id="registerForm" class="auth-form hidden">
-                <input type="text" id="registerName" placeholder="Nome do Herói" required>
-                <input type="email" id="registerEmail" placeholder="E-mail" required>
-                <input type="password" id="registerPassword" placeholder="Senha" required>
-                <button type="submit" class="neon-button">CRIAR CONTA</button>
+            <form id="signupForm" class="auth-form">
+                <input type="text" id="signupUsername" placeholder="Nome de Herói" required>
+                <input type="email" id="signupEmail" placeholder="E-mail" required>
+                <input type="password" id="signupPassword" placeholder="Senha" required>
+                <button type="submit">CRIAR CONTA</button>
+                <p class="toggle-form">Já tem conta? <span id="showLogin">Faça login!</span></p>
             </form>
-            
-            <div class="auth-links">
-                <a href="#" id="toggleRegister">Criar nova conta</a>
-                <a href="#" id="toggleLogin">Já tenho uma conta</a>
-            </div>
         </div>
+
+        <div id="authMessage" class="auth-message"></div>
     </div>
 
-    <script type="module" src="./js/firebase/firebase-config.js"></script>
-    <script type="module" src="./js/firebase/auth.js"></script>
-   
-    <script type="module">
-        import { initAuthListeners, initAuthForms } from './js/firebase/auth.js';
-        initAuthListeners();
-        initAuthForms();
-    </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <!-- Nossos scripts -->
+    <script src="./js/firebase/firebase-config.js"></script>
+    <script src="./js/firebase/auth.js"></script>
+    <script src="./js/firebase/db.js"></script>
+    <script type="module" src="js/auth-ui.js"></script>
 </body>
 </html>
