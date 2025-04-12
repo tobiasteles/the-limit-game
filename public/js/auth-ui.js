@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (user) {
             // Verificar se o email foi verificado
             if (user.emailVerified) {
-              window.location.href = '/game.html';
+              window.location.href = '/public/character-selection.html';
             } else {
               showMessage('Verifique seu e-mail antes de entrar!');
               auth.signOut();
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const userCredential = await auth.createUserWithEmailAndPassword(email, password);
           await userCredential.user.updateProfile({ displayName: username });
           await userCredential.user.sendEmailVerification();
-          window.location.href = '/game.html';
+          window.location.href = '/public/character-selection.html';
         } catch (error) {
           showMessage(error.message);
         }
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
         try {
           await auth.signInWithEmailAndPassword(email, password);
-          window.location.href = '/game.html';
+          window.location.href = '/public/character-selection.html';
         } catch (error) {
           showMessage(error.message);
         }

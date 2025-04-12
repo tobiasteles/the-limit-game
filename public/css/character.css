@@ -1,139 +1,115 @@
-:root {
-    --fundo: #2C2C2C;
-    --base: #1A1A1A;
-    --mistico: #7F00FF;
-    --neon: #00FFAA;
-    --alerta: #FF5500;
-  }
-  
-  .creation-container {
-    background: var(--base);
-    padding: 2.5rem;
-    border-radius: 16px;
-    max-width: 800px;
-    width: 90%;
-    margin: 2rem auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  }
-  
-  .creation-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem;
-  }
-  
-  .class-selector {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-  }
-  
-  .class-card {
-    background: var(--fundo);
-    padding: 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .class-card:hover {
-    border-color: var(--mistico);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 20px rgba(127, 0, 255, 0.2);
-  }
-  
-  .class-card.selected {
-    border-color: var(--neon);
-    box-shadow: 0 0 25px rgba(0, 255, 170, 0.4);
-    animation: pulse 1.5s infinite;
-  }
-  
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.4); }
-    70% { box-shadow: 0 0 0 12px rgba(0, 255, 170, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 255, 170, 0); }
-  }
-  
-  .character-preview {
-    text-align: center;
-    background: var(--fundo);
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .sprite {
-    width: 180px;
-    height: 240px;
-    margin: 0 auto;
-    position: relative;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
-  }
-  
-  .head {
-    width: 45px;
-    height: 45px;
-    background: var(--mistico);
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 20px;
-    border-radius: 50%;
-    transition: all 0.3s;
-    box-shadow: inset 0 0 12px rgba(127, 0, 255, 0.4);
-  }
-  
-  .body {
-    width: 60px;
-    height: 90px;
-    background: var(--neon);
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 65px;
-    border-radius: 8px;
-    transition: all 0.3s;
-    box-shadow: inset 0 0 12px rgba(0, 255, 170, 0.3);
-  }
-  
-  /* Melhorias de Responsividade */
-  @media (max-width: 768px) {
-    .creation-content {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-    
-    .creation-container {
-      padding: 1.5rem;
-    }
-    
-    .sprite {
-      width: 140px;
-      height: 200px;
-    }
-  }
-  
-  /* Efeito de brilho neon para elementos selecionados */
-  .selected-effect {
-    position: relative;
-  }
-  
-  .selected-effect::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border-radius: 8px;
-    animation: neonGlow 1.5s infinite;
-  }
-  
-  @keyframes neonGlow {
-    0% { opacity: 0.8; }
-    50% { opacity: 0.4; }
-    100% { opacity: 0.8; }
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0A0A0A url('../assets/bg-pattern.png');
+  font-family: 'Oswald', sans-serif;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.title {
+  font-family: 'Bebas Neue', cursive;
+  color: #8C52FF;
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 10px rgba(140,82,255,0.5);
+}
+
+.characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.character-card {
+  background: #1B1B2F;
+  border: 2px solid #5D5FEF;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s;
+  position: relative;
+}
+
+.character-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px #5D5FEF;
+}
+
+.character-sprite {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1rem;
+  image-rendering: pixelated;
+}
+
+.character-name {
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.character-class {
+  color: #8C52FF;
+  font-size: 0.9rem;
+}
+
+.controls {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.create-button, .exit-button {
+  padding: 12px 25px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  transition: all 0.3s;
+}
+
+.create-button {
+  background: #5D5FEF;
+  color: #FFFFFF;
+}
+
+.create-button:hover {
+  background: #8C52FF;
+}
+
+.exit-button {
+  background: #FF4141;
+  color: #FFFFFF;
+}
+
+.delete-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #FF4141;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.character-card:hover .delete-button {
+  opacity: 1;
+}
+
+.character-card.selected {
+  border-color: #FF4141;
+  box-shadow: 0 0 15px #FF4141;
+}

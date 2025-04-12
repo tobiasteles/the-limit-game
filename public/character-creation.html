@@ -3,48 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Criação de Personagem</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/character.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/character-creation.css">
 </head>
 <body>
     <div class="creation-container">
-        <div class="logo-header">
-            <h1>Criação do Personagem</h1>
-            <div class="neon-border"></div>
-        </div>
+        <h1>CRIAÇÃO DE PERSONAGEM</h1>
         
-        <div class="creation-content">
-            <div class="class-selector">
-                <!-- Classes serão adicionadas via JavaScript -->
-            </div>
-            
-            <div class="character-preview">
-                <div class="sprite" id="sprite">
-                    <div class="head"></div>
-                    <div class="body"></div>
-                    <div class="left-arm"></div>
-                    <div class="right-arm"></div>
-                    <div class="legs"></div>
+        <div class="character-preview">
+            <img id="class-sprite" src="" alt="Class Sprite">
+            <div class="class-info">
+                <h2 id="class-name">GUERREIRO</h2>
+                <p id="class-desc">Um combatente corpo a corpo especializado em armas pesadas</p>
+                <div class="attributes">
+                    <div class="attr"><span>ATQ</span><div class="bar" style="width: 80%"></div></div>
+                    <div class="attr"><span>DEF</div><div class="bar" style="width: 65%"></div></div>
+                    <div class="attr"><span>VEL</span><div class="bar" style="width: 45%"></div></div>
                 </div>
-                <input type="text" id="characterName" placeholder="Nome do Personagem" maxlength="20">
-                <button id="createCharacter" class="neon-button">Confirmar Criação</button>
             </div>
         </div>
+
+        <div class="class-selection">
+            <button class="nav-btn" onclick="previousClass()">&lt;</button>
+            <div class="class-grid" id="class-grid">
+                <!-- JS vai preencher aqui -->
+            </div>
+            <button class="nav-btn" onclick="nextClass()">&gt;</button>
+        </div>
+
+        <button class="create-btn" onclick="createCharacter()">FORJAR DESTINO</button>
     </div>
 
-    <script type="module">
-        import { auth } from './js/firebase/auth.js';
-        import { playerDB, realtimeDB } from './js/firebase/db.js';
-        import { initCharacterCreation } from './js/game/character-creation.js';
-        
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = './index.html';
-            } else {
-                initCharacterCreation();
-                console.log('Character creation initialized');
-            }
-        });
-    </script>
+    <script src="js/character-creation.js"></script>
 </body>
 </html>
