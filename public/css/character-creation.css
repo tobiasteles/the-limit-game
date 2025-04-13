@@ -147,3 +147,30 @@ h1 {
     font-family: 'Anton', sans-serif;
     color: #5D5FEF;
 }
+
+.name-input {
+    margin: 20px auto;
+    position: relative;
+    width: 300px;
+}
+
+#characterName {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    background: #1B1B2F;
+    border: 2px solid #5D5FEF;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-family: 'Oswald', sans-serif;
+    text-align: center;
+}
+
+#nameCounter {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8C52FF;
+    font-size: 0.8em;
+}

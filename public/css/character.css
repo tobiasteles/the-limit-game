@@ -1,115 +1,130 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  background: #0A0A0A url('../assets/bg-pattern.png');
+  background: #0A0A0A;
+  color: #FFFFFF;
   font-family: 'Oswald', sans-serif;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 20px;
 }
 
-.title {
-  font-family: 'Bebas Neue', cursive;
-  color: #8C52FF;
+.selection-container {
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
-  font-size: 3rem;
-  margin-bottom: 2rem;
-  text-shadow: 0 0 10px rgba(140,82,255,0.5);
+}
+
+h1 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 4em;
+  color: #8C52FF;
+  text-shadow: 3px 3px #1B1B2F;
+  margin: 30px 0;
 }
 
 .characters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  padding: 20px;
 }
 
 .character-card {
   background: #1B1B2F;
-  border: 2px solid #5D5FEF;
-  border-radius: 10px;
-  padding: 1rem;
-  text-align: center;
-  transition: transform 0.3s;
+  border: 3px solid #5D5FEF;
+  border-radius: 15px;
+  padding: 20px;
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .character-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 15px #5D5FEF;
+  box-shadow: 0 0 15px #8C52FF;
 }
 
 .character-sprite {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 1rem;
-  image-rendering: pixelated;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 15px;
 }
 
 .character-name {
-  color: #FFFFFF;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-family: 'Anton', sans-serif;
+  color: #FF4141;
+  font-size: 1.8em;
+  margin: 10px 0;
 }
 
 .character-class {
   color: #8C52FF;
-  font-size: 0.9rem;
+  font-size: 1.1em;
+  margin: 10px 0;
 }
 
-.controls {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.create-button, .exit-button {
-  padding: 12px 25px;
-  margin: 0 10px;
+.select-button {
+  background: #5D5FEF;
   border: none;
+  padding: 10px 25px;
+  color: white;
   border-radius: 5px;
   cursor: pointer;
   font-family: 'Oswald', sans-serif;
-  transition: all 0.3s;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
 }
 
-.create-button {
-  background: #5D5FEF;
-  color: #FFFFFF;
-}
-
-.create-button:hover {
+.select-button:hover {
   background: #8C52FF;
-}
-
-.exit-button {
-  background: #FF4141;
-  color: #FFFFFF;
+  letter-spacing: 1px;
 }
 
 .delete-button {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 10px;
+  right: 10px;
   background: #FF4141;
-  color: white;
   border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  width: 25px;
-  height: 25px;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.3s;
+  font-size: 1.4em;
+  line-height: 0;
 }
 
-.character-card:hover .delete-button {
-  opacity: 1;
+.loading {
+  font-size: 2em;
+  color: #8C52FF;
+  padding: 50px 0;
 }
 
-.character-card.selected {
-  border-color: #FF4141;
-  box-shadow: 0 0 15px #FF4141;
+.action-buttons {
+  margin: 40px 0;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.nav-btn {
+  background: #1B1B2F;
+  border: 2px solid #8C52FF;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #8C52FF;
+  transform: scale(1.05);
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #1B1B2F;
 }
