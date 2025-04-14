@@ -23,17 +23,17 @@ h1 {
 .characters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 25px;
-  padding: 20px;
+  gap: 20px;
+  padding: 15px;
 }
 
 .character-card {
-  background: #1B1B2F;
-  border: 3px solid #5D5FEF;
-  border-radius: 15px;
-  padding: 20px;
   position: relative;
-  transition: all 0.3s ease;
+  background: #1B1B2Faa;
+  border: 2px solid #5D5FEF;
+  border-radius: 10px;
+  padding: 15px;
+  transition: transform 0.3s ease;
 }
 
 .character-card:hover {

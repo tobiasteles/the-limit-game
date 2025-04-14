@@ -28,8 +28,9 @@
                     <div class="attr"><span>ATQ</span>
                         <div class="bar" style="width: 80%"></div>
                     </div>
-                    <div class="attr"><span>DEF</div>
-                    <div class="bar" style="width: 65%"></div>
+                    <div class="attr"><span>DEF</span>
+                        <div class="bar" style="width: 65%"></div>
+                    </div>
                 </div>
                 <div class="attr"><span>VEL</span>
                     <div class="bar" style="width: 45%"></div>
@@ -46,9 +47,30 @@
         <button class="nav-btn" onclick="nextClass()">&gt;</button>
     </div>
 
-    <button class="create-btn" onclick="createCharacter()">FORJAR DESTINO</button>
-    </div>
+    <div><button class="create-btn" onclick="createCharacter()">COMEÇAR</button></div>
 
+
+
+
+    <!-- Adicione ANTES do seu script -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // Sua configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCL2X4yv2vexEmtX1kWLw3eanB9kYXl4-E",
+            authDomain: "the-limit-d6107.firebaseapp.com",
+            projectId: "the-limit-d6107",
+            storageBucket: "the-limit-d6107.firebasestorage.app",
+            messagingSenderId: "712581110795",
+            appId: "1:712581110795:web:dde1205260a340c405bb0e"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script src="js/character-creation.js"></script>
 </body>
 

@@ -1,12 +1,19 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-    const MAX_CHARACTERS = 6;
+// Adicione no TOPO do arquivo
+const auth = firebase.auth();
+const db = firebase.firestore();
 
+// Modifique o início do código para:
+document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged(user => {
-        if (!user) window.location.href = '/';
-        else loadCharacters(user.uid);
+        if (!user) {
+            window.location.href = 'index.html';
+        } else {
+            loadCharacters(user.uid);
+        }
     });
+    
+    // Resto do seu código...
+    const MAX_CHARACTERS = 6;
 
     async function loadCharacters(userId) {
         const charactersGrid = document.getElementById('charactersGrid');
@@ -53,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (confirmDelete) {
             try {
-                const userId = firebase.auth().currentUser.uid;
+                const userId = auth.currentUser.uid;
                 await db.collection('players').doc(userId).collection('characters').doc(characterId).delete();
                 e.target.closest('.character-card').remove();
             } catch (error) {
@@ -70,13 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'Criar novo personagem';
     }
 
-    document.getElementById('createNew').addEventListener('click', () => {
-        window.location.href = 'character-creation.html';
-    });
-
-    document.getElementById('backToMenu').addEventListener('click', () => {
-        window.location.href = '/';
-    });
 
     function enterGame(characterId) {
         // Implementar lógica de entrada no jogo

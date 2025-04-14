@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>Seleção de Personagem</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Oswald:wght@500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/character.css">
 </head>
+
 <body>
     <div class="selection-container">
         <h1>SELECIONE SEU PERSONAGEM</h1>
-        
-        <div class="characters-grid" id="characters-grid"></div>
-        
+
+        <div class="characters-grid" id="charactersGrid"></div>
+
+
         <div class="action-buttons">
             <button class="nav-btn" onclick="window.location.href='character-creation.html'">
                 Criar Novo Personagem
@@ -22,6 +26,25 @@
         </div>
     </div>
 
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // Cole AQUI SUA CONFIGURAÇÃO REAL do Firebase Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyCL2X4yv2vexEmtX1kWLw3eanB9kYXl4-E",
+            authDomain: "the-limit-d6107.firebaseapp.com",
+            projectId: "the-limit-d6107",
+            storageBucket: "the-limit-d6107.firebasestorage.app",
+            messagingSenderId: "712581110795",
+            appId: "1:712581110795:web:dde1205260a340c405bb0e"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script src="js/character-selection.js"></script>
 </body>
+
 </html>

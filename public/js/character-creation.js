@@ -1,3 +1,7 @@
+// Adicione no início do arquivo
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 const classes = [
     {
         name: "Guerreiro",
@@ -62,18 +66,20 @@ function previousClass() {
     updateClassDisplay();
 }
 
+// Modifique a função createCharacter
 async function createCharacter() {
-    const selectedClass = classes[currentClassIndex];
-    const characterName = document.getElementById('characterName').value.trim();
-    const user = firebase.auth().currentUser;
-
-    if (!characterName) {
-        alert('Digite um nome para o herói!');
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Faça login antes de criar um personagem!');
+        window.location.href = 'index.html';
         return;
     }
 
-    if (!user) {
-        alert('Usuário não autenticado!');
+    const selectedClass = classes[currentClassIndex];
+    const characterName = document.getElementById('characterName').value.trim();
+
+    if (!characterName) {
+        alert('Digite um nome para o herói!');
         return;
     }
 
@@ -87,7 +93,7 @@ async function createCharacter() {
     };
 
     try {
-        await firebase.firestore()
+        await db
             .collection('players')
             .doc(user.uid)
             .collection('characters')
@@ -105,23 +111,35 @@ document.getElementById('characterName').addEventListener('input', function(e) {
     document.getElementById('nameCounter').textContent = `${e.target.value.length}/20`;
 });
 
-// Inicialização
+// Adicione verificação de autenticação no carregamento
 document.addEventListener('DOMContentLoaded', () => {
-    updateClassDisplay();
-    
-    // Preencher grid de classes
-    const grid = document.getElementById('class-grid');
-    classes.forEach((cls, index) => {
-        const classItem = document.createElement('div');
-        classItem.className = 'class-item';
-        classItem.innerHTML = `
-            <img src="${cls.sprite}" alt="${cls.name}" class="class-thumb">
-            <p>${cls.name}</p>
-        `;
-        classItem.onclick = () => {
-            currentClassIndex = index;
-            updateClassDisplay();
-        };
-        grid.appendChild(classItem);
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            window.location.href = 'index.html';
+        } else {
+            try {
+                updateClassDisplay();
+                // ... resto do código ...
+                
+                // Preencher grid de classes
+                const grid = document.getElementById('class-grid');
+                classes.forEach((cls, index) => {
+                    const classItem = document.createElement('div');
+                    classItem.className = 'class-item';
+                    classItem.innerHTML = `
+                        <img src="${cls.sprite}" alt="${cls.name}" class="class-thumb">
+                        <p>${cls.name}</p>
+                    `;
+                    classItem.onclick = () => {
+                        currentClassIndex = index;
+                        updateClassDisplay();
+                    };
+                    grid.appendChild(classItem);
+                });
+            } catch (error) {
+                console.error('Erro na inicialização:', error);
+                alert('Erro ao carregar a criação de personagem!');
+            }
+        }
     });
 });
