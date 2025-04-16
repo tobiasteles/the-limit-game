@@ -14,22 +14,22 @@ class Overworld {
         image.src = "/public/assets/maps/DemoLower.png";
 
 
-        const x = 0;
-        const y = 0;
+        const x = 3;
+        const y = 5;
         const hero = new Image();
         hero.onload = () => {
             this.ctx.drawImage(
                 hero, 
                 0, 
                 0, 
-                1000, 
-                1000, 
-                x, 
-                y, 
+                32, 
+                32, 
+                x*16, 
+                y*16, 
                 32, 
                 32);
         }
-        hero.src = "/public/assets/sprites/SpriteSheet/Assassin.png";
+        hero.src = "/public/assets/sprites/SpriteSheet/Assassin/assassin.png";   
     }
 
 }
