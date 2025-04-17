@@ -13,23 +13,29 @@ class Overworld {
         };
         image.src = "/public/assets/maps/DemoLower.png";
 
+        // Place some Game Objects!
 
-        const x = 3;
-        const y = 5;
-        const hero = new Image();
-        hero.onload = () => {
-            this.ctx.drawImage(
-                hero, 
-                0, 
-                0, 
-                32, 
-                32, 
-                x*16, 
-                y*16, 
-                32, 
-                32);
-        }
-        hero.src = "/public/assets/sprites/SpriteSheet/Assassin/assassin.png";   
+        const hero = new GameObject ({
+            x: 5,
+            y: 6,
+            
+        })
+        const npc1 = new GameObject ({
+            x: 7,
+            y: 9,
+            src: "/public/assets/sprites/SpriteSheet/npc/npc1.png"
+        })
+
+
+        setTimeout(() => {
+            hero.sprite.draw(this.ctx);
+        npc1.sprite.draw(this.ctx);
+        }, 200)
+
+        
+
+           
     }
+
 
 }
