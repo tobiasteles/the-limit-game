@@ -1,24 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Limit - Game</title>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>The Limit - Mundo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/game.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
-
 <body>
     <div class="game-container">
-        <canvas class="game-canvas" width="352" height="198"></canvas>
+        <!-- Cabeçalho do Jogador -->
+        <header class="game-header">
+            <div class="player-info">
+                <h1 id="playerName">...</h1>
+                <div class="level-bar">
+                    <span>Nível <span id="playerLevel">1</span></span>
+                    <div class="xp-bar">
+                        <div class="xp-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="resource-panel">
+                <div class="resource">
+                    <span class="gold">0</span>
+                    <img src="assets/gold.png" alt="Ouro">
+                </div>
+                <div class="resource">
+                    <span class="energy">100</span>
+                    <img src="assets/energy.png" alt="Energia">
+                </div>
+            </div>
+        </header>
+
+        <!-- Corpo Principal -->
+        <main class="game-main">
+            <!-- Personagem -->
+            <div class="character-view">
+                <div class="character-portrait" id="characterSprite"></div>
+                <div class="attributes">
+                    <div class="attribute">
+                        <span>ATQ</span>
+                        <div class="value" id="atkValue">0</div>
+                    </div>
+                    <div class="attribute">
+                        <span>DEF</span>
+                        <div class="value" id="defValue">0</div>
+                    </div>
+                    <div class="attribute">
+                        <span>VEL</span>
+                        <div class="value" id="spdValue">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="action-wheel">
+                <button class="action-btn combat" data-action="combat">
+                    <img src="assets/sword.png" alt="Combate">
+                    <span>Combate</span>
+                </button>
+                <button class="action-btn train" data-action="train">
+                    <img src="assets/dumbbell.png" alt="Treinar">
+                    <span>Treinar</span>
+                </button>
+                <button class="action-btn shop" data-action="shop">
+                    <img src="assets/shop.png" alt="Loja">
+                    <span>Loja</span>
+                </button>
+                <button class="action-btn guild" data-action="guild">
+                    <img src="assets/guild.png" alt="Guilda">
+                    <span>Guilda</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Painel Dinâmico -->
+        <section class="action-panel" id="actionPanel"></section>
     </div>
 
-
-    <script src="/public/js/game/Sprite.js"></script>
-    <script src="/public/js/game/GameObject.js"></script>
-    <script src="/public/js/game/Overworld.js"></script>
-    <script src="/public/js/game/init.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCL2X4yv2vexEmtX1kWLw3eanB9kYXl4-E",
+            authDomain: "the-limit-d6107.firebaseapp.com",
+            projectId: "the-limit-d6107",
+            storageBucket: "the-limit-d6107.appspot.com",
+            messagingSenderId: "712581110795",
+            appId: "1:712581110795:web:dde1205260a340c405bb0e"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="js/game/game.js"></script>
 </body>
-
 </html>
