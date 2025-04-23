@@ -4,7 +4,6 @@ const db = firebase.firestore();
 class Game {
     constructor() {
         try {
-            // Verifica múltiplas fontes para o characterId
             this.selectedCharacterId = 
                 localStorage.getItem('selectedCharacterId') ||
                 sessionStorage.getItem('selectedCharacterId') ||
@@ -14,12 +13,12 @@ class Game {
                 throw new Error('ID do personagem não encontrado');
             }
 
-            // Verifica inicialização do Firebase
             if (!firebase.apps.length) {
                 throw new Error('Firebase não inicializado');
             }
 
             this.init();
+            this.setupReturnButton(); // Novo método adicionado
         } catch (error) {
             console.error('Erro na inicialização:', error);
             this.redirectToCharacterSelection();
@@ -33,6 +32,16 @@ class Game {
         } catch (error) {
             console.error('Erro na inicialização do jogo:', error);
             this.redirectToCharacterSelection();
+        }
+    }
+
+    // Novo método para configurar o botão de retorno
+    setupReturnButton() {
+        const returnButton = document.getElementById('returnButton');
+        if (returnButton) {
+            returnButton.addEventListener('click', () => {
+                this.redirectToCharacterSelection();
+            });
         }
     }
 
@@ -59,7 +68,6 @@ class Game {
 
     updateUI() {
         try {
-            // Elementos da UI
             const nameElement = document.getElementById('characterName');
             const spriteElement = document.getElementById('characterSprite');
             const atkElement = document.getElementById('atkValue');
@@ -69,12 +77,10 @@ class Game {
                 throw new Error('Elementos da UI não encontrados');
             }
 
-            // Atualiza os dados
             nameElement.textContent = this.characterData.name || 'Herói Sem Nome';
             atkElement.textContent = this.characterData.stats?.atk ?? 0;
             defElement.textContent = this.characterData.stats?.def ?? 0;
             
-            // Carrega a imagem com fallback
             if (this.characterData.spritePath) {
                 spriteElement.src = this.characterData.spritePath;
                 spriteElement.onerror = () => {
@@ -116,10 +122,14 @@ class Game {
         }
         
         console.log('Ação selecionada:', action);
-        // Implementar lógica específica para cada ação
     }
 
     redirectToCharacterSelection() {
+        // Limpeza adicional se necessário
+        if (this.chat) { // Mantido para caso volte a implementar o chat
+            this.chat.destroy();
+        }
+        
         localStorage.removeItem('selectedCharacterId');
         sessionStorage.removeItem('selectedCharacterId');
         window.location.href = 'character-selection.html';
@@ -137,7 +147,6 @@ class Game {
     }
 }
 
-// Inicialização controlada
 auth.onAuthStateChanged(user => {
     try {
         if (user) {

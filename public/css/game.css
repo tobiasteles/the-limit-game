@@ -181,3 +181,37 @@ body {
     font-family: 'Bebas Neue', cursive;
     z-index: 9999;
 }
+
+/* Botão de retorno */
+.return-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: #FF4141;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.return-button:hover {
+    background: #8C52FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
+}
+
+.return-button img {
+    width: 24px;
+    height: 24px;
+}
+
+
+
