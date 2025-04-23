@@ -2,97 +2,120 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>The Limit - Mundo</title>
+    <title>The Limit - Jogo</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/game.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="game-container">
-        <!-- Cabeçalho do Jogador -->
-        <header class="game-header">
-            <div class="player-info">
-                <h1 id="playerName">...</h1>
-                <div class="level-bar">
-                    <span>Nível <span id="playerLevel">1</span></span>
-                    <div class="xp-bar">
-                        <div class="xp-fill"></div>
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="player-status">
+                <div class="health-bar">
+                    <span>HP</span>
+                    <div class="bar">
+                        <div class="fill hp" style="width: 100%"></div>
                     </div>
                 </div>
-            </div>
-            <div class="resource-panel">
-                <div class="resource">
-                    <span class="gold">0</span>
-                    <img src="assets/gold.png" alt="Ouro">
+                <div class="mana-bar">
+                    <span>MANA</span>
+                    <div class="bar">
+                        <div class="fill mana" style="width: 80%"></div>
+                    </div>
                 </div>
-                <div class="resource">
-                    <span class="energy">100</span>
-                    <img src="assets/energy.png" alt="Energia">
+                <div class="level-display">
+                    <span>Nível 1</span>
                 </div>
             </div>
         </header>
 
-        <!-- Corpo Principal -->
-        <main class="game-main">
-            <!-- Personagem -->
-            <div class="character-view">
-                <div class="character-portrait" id="characterSprite"></div>
-                <div class="attributes">
-                    <div class="attribute">
-                        <span>ATQ</span>
-                        <div class="value" id="atkValue">0</div>
-                    </div>
-                    <div class="attribute">
-                        <span>DEF</span>
-                        <div class="value" id="defValue">0</div>
-                    </div>
-                    <div class="attribute">
-                        <span>VEL</span>
-                        <div class="value" id="spdValue">0</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel -->
+            <nav class="left-panel">
+                <button class="nav-btn home">
+                    <img src="assets/icons/home.png" alt="Casa">
+                    Casa
+                </button>
+                <button class="nav-btn weapon">
+                    <img src="assets/icons/sword.png" alt="Armas">
+                    Armas
+                </button>
+                <button class="nav-btn armor">
+                    <img src="assets/icons/shield.png" alt="Armaduras">
+                    Armaduras
+                </button>
+                <button class="nav-btn guild">
+                    <img src="assets/icons/guild.png" alt="Guilda">
+                    Guilda
+                </button>
+                <button class="nav-btn quests">
+                    <img src="assets/icons/quest.png" alt="Missões">
+                    Missões
+                </button>
+            </nav>
+
+            <!-- Character Area -->
+            <section class="character-area">
+                <div class="character-display">
+                    <img id="characterSprite" class="character-sprite" src="" alt="Personagem">
+                    <div class="character-info">
+                        <h2 id="characterName"></h2>
+                        <div class="stats">
+                            <div class="stat"><span>ATQ:</span> <span id="atkValue">0</span></div>
+                            <div class="stat"><span>DEF:</span> <span id="defValue">0</span></div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Ações -->
-            <div class="action-wheel">
-                <button class="action-btn combat" data-action="combat">
-                    <img src="assets/sword.png" alt="Combate">
-                    <span>Combate</span>
+            <!-- Right Panel -->
+            <nav class="right-panel">
+                <button class="nav-btn inventory">
+                    <img src="assets/icons/backpack.png" alt="Inventário">
+                    Inventário
                 </button>
-                <button class="action-btn train" data-action="train">
-                    <img src="assets/dumbbell.png" alt="Treinar">
-                    <span>Treinar</span>
+                <button class="nav-btn skills">
+                    <img src="assets/icons/skills.png" alt="Habilidades">
+                    Habilidades
                 </button>
-                <button class="action-btn shop" data-action="shop">
-                    <img src="assets/shop.png" alt="Loja">
-                    <span>Loja</span>
+                <button class="nav-btn dungeon">
+                    <img src="assets/icons/dungeon.png" alt="Calabouços">
+                    Calabouços
                 </button>
-                <button class="action-btn guild" data-action="guild">
-                    <img src="assets/guild.png" alt="Guilda">
-                    <span>Guilda</span>
+                <button class="nav-btn events">
+                    <img src="assets/icons/event.png" alt="Eventos">
+                    Eventos
                 </button>
-            </div>
+            </nav>
         </main>
 
-        <!-- Painel Dinâmico -->
-        <section class="action-panel" id="actionPanel"></section>
+        <!-- Bottom Bar -->
+        <footer class="bottom-bar">
+            <div class="xp-bar">
+                <span>EXP</span>
+                <div class="bar">
+                    <div class="fill xp" style="width: 30%"></div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Action Panels (hidden by default) -->
+        <section class="action-panel" id="inventoryPanel"></section>
+        <section class="action-panel" id="shopPanel"></section>
     </div>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCL2X4yv2vexEmtX1kWLw3eanB9kYXl4-E",
-            authDomain: "the-limit-d6107.firebaseapp.com",
-            projectId: "the-limit-d6107",
-            storageBucket: "the-limit-d6107.appspot.com",
-            messagingSenderId: "712581110795",
-            appId: "1:712581110795:web:dde1205260a340c405bb0e"
-        };
-        firebase.initializeApp(firebaseConfig);
-    </script>
-    <script src="js/game/game.js"></script>
+   <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<!-- Configuração do Firebase DEVE vir primeiro -->
+<script src="js/firebase/firebase-config.js"></script>
+
+<!-- Depois seus outros scripts -->
+<script src="js/game/game.js"></script>
 </body>
 </html>

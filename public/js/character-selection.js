@@ -1,18 +1,17 @@
-// Adicione no TOPO do arquivo
+// character-selection.js
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Modifique o início do código para:
 document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged(user => {
         if (!user) {
             window.location.href = 'index.html';
         } else {
             loadCharacters(user.uid);
+            setupEventListeners();
         }
     });
-    
-    // Resto do seu código...
+
     const MAX_CHARACTERS = 6;
 
     async function loadCharacters(userId) {
@@ -35,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCreateButton(snapshot.size);
         } catch (error) {
             console.error('Erro ao carregar personagens:', error);
+            showMessage('Erro ao carregar personagens!');
         }
     }
 
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'character-card';
         card.innerHTML = `
             <button class="delete-button" data-id="${id}">×</button>
-            <img src="${spritePath}" class="character-sprite" alt="${name}">
+            <img src="${spritePath}" class="character-sprite" alt="${name}" onerror="this.src='assets/default-character.png'">
             <h3 class="character-name">${name}</h3>
             <p class="character-class">${className} - Nível ${level}</p>
             <button class="select-button">Entrar no Mundo</button>
@@ -56,31 +56,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteCharacter(e) {
         const characterId = e.target.dataset.id;
+        if (!characterId) return;
+
         const confirmDelete = confirm('Tem certeza que deseja apagar este herói?');
-        
-        if (confirmDelete) {
-            try {
-                const userId = auth.currentUser.uid;
-                await db.collection('players').doc(userId).collection('characters').doc(characterId).delete();
-                e.target.closest('.character-card').remove();
-            } catch (error) {
-                console.error('Erro ao deletar personagem:', error);
-            }
+        if (!confirmDelete) return;
+
+        try {
+            const userId = auth.currentUser?.uid;
+            if (!userId) throw new Error('Usuário não autenticado');
+
+            await db.collection('players').doc(userId).collection('characters').doc(characterId).delete();
+            e.target.closest('.character-card').remove();
+            showMessage('Personagem deletado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao deletar personagem:', error);
+            showMessage('Erro ao deletar personagem!');
         }
     }
 
     function updateCreateButton(currentCount) {
         const createBtn = document.getElementById('createNew');
+        if (!createBtn) return;
+
         createBtn.disabled = currentCount >= MAX_CHARACTERS;
         createBtn.title = currentCount >= MAX_CHARACTERS 
             ? 'Limite máximo de personagens atingido' 
             : 'Criar novo personagem';
     }
 
-
     function enterGame(characterId) {
-        // Implementar lógica de entrada no jogo
-        console.log('Entrando no jogo com personagem:', characterId);
-        window.location.href = `game.html?characterId=${characterId}`;
+        if (!characterId) {
+            showMessage('Selecione um personagem válido!');
+            return;
+        }
+
+        // Salva em múltiplos locais para redundância
+        localStorage.setItem('selectedCharacterId', characterId);
+        sessionStorage.setItem('selectedCharacterId', characterId);
+        
+        // Redireciona com o ID na URL
+        window.location.href = `game.html?characterId=${encodeURIComponent(characterId)}`;
+    }
+
+    function setupEventListeners() {
+        document.getElementById('btn-confirm')?.addEventListener('click', () => {
+            const selected = document.querySelector('.character-card.selected');
+            if (selected) {
+                const characterId = selected.dataset.id;
+                enterGame(characterId);
+            } else {
+                showMessage('Selecione um personagem primeiro!');
+            }
+        });
+    }
+
+    function showMessage(message, duration = 5000) {
+        const msgElement = document.getElementById('authMessage');
+        if (!msgElement) return;
+
+        msgElement.textContent = message;
+        msgElement.style.display = 'block';
+        setTimeout(() => msgElement.style.display = 'none', duration);
     }
 });

@@ -2,163 +2,182 @@
 body {
     background-color: #0A0A0A;
     color: #FFFFFF;
-    font-family: 'Anton', sans-serif;
     margin: 0;
-    min-height: 100vh;
+    height: 100vh;
+    font-family: 'Anton', sans-serif;
 }
 
 .game-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-/* Cabeçalho */
-.game-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px;
+}
+
+/* Top Bar */
+.top-bar {
     background: #1B1B2F;
-    border-radius: 10px;
-    margin-bottom: 30px;
-    border: 2px solid #5D5FEF;
+    padding: 10px;
+    border-bottom: 2px solid #5D5FEF;
 }
 
-.player-info h1 {
-    font-family: 'Bebas Neue', cursive;
-    color: #8C52FF;
-    margin: 0;
-    font-size: 2.5rem;
-    text-shadow: 0 0 10px rgba(140,82,255,0.5);
+.player-status {
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
 
-.level-bar {
-    margin-top: 10px;
+.health-bar, .mana-bar, .level-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.xp-bar {
-    width: 300px;
-    height: 15px;
+.bar {
+    width: 200px;
+    height: 20px;
     background: #0A0A0A;
     border-radius: 10px;
     overflow: hidden;
 }
 
-.xp-fill {
-    width: 30%;
+.fill {
     height: 100%;
-    background: #5D5FEF;
     transition: width 0.3s ease;
 }
 
-.resource-panel {
-    display: flex;
-    gap: 30px;
+.hp { background: #FF4141; }
+.mana { background: #5D5FEF; }
+.xp { background: #8C52FF; }
+
+.level-display {
+    color: #8C52FF;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
 }
 
-.resource {
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Panels */
+.left-panel, .right-panel {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #1B1B2F;
+    padding: 20px;
+    border: 2px solid #5D5FEF;
+    border-radius: 10px;
+}
+
+.nav-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #1B1B2F;
+    color: #FFFFFF;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.2rem;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1.2rem;
-}
-
-.resource img {
-    width: 32px;
-    height: 32px;
-}
-
-/* Personagem */
-.character-view {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.character-portrait {
-    width: 250px;
-    height: 250px;
-    margin: 0 auto 20px;
-    border: 3px solid #8C52FF;
-    border-radius: 10px;
-    background-size: cover;
-    background-position: center;
-}
-
-.attributes {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-}
-
-.attribute {
-    background: #1B1B2F;
-    padding: 15px 25px;
-    border-radius: 8px;
+    transition: all 0.3s ease;
     border: 1px solid #5D5FEF;
 }
 
-.attribute span {
-    display: block;
-    color: #8C52FF;
-    margin-bottom: 5px;
+.nav-btn:hover {
+    background: #5D5FEF;
+    transform: translateX(5px);
 }
 
-.value {
-    font-size: 1.5rem;
-    color: #FF4141;
+.nav-btn img {
+    width: 24px;
+    height: 24px;
 }
 
-/* Ações */
-.action-wheel {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    max-width: 600px;
-    margin: 0 auto;
+/* Character Area */
+.character-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.action-btn {
+.character-display {
+    text-align: center;
     padding: 20px;
-    border: none;
+    background: #1B1B2F;
     border-radius: 10px;
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    border: 2px solid #8C52FF;
+}
+
+.character-sprite {
+    width: 300px;
+    height: 300px;
+    image-rendering: pixelated;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.stat {
+    font-size: 1.2rem;
+    color: #8C52FF;
+}
+
+.stat span:first-child {
+    color: #FFFFFF;
+}
+
+/* Bottom Bar */
+.bottom-bar {
+    background: #1B1B2F;
+    padding: 10px;
+    border-top: 2px solid #5D5FEF;
+}
+
+.xp-bar {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 10px;
-    text-transform: uppercase;
 }
 
-.action-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(140,82,255,0.5);
-}
-
-.action-btn img {
-    width: 32px;
-    height: 32px;
-}
-
-.action-btn.combat { background: #FF4141; }
-.action-btn.train { background: #5D5FEF; }
-.action-btn.shop { background: #8C52FF; }
-.action-btn.guild { background: #1B1B2F; }
-
-/* Painel de Ações */
+/* Action Panels */
 .action-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: #1B1B2F;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
-    margin-top: 30px;
-    border: 2px solid #5D5FEF;
-    animation: panelSlide 0.3s ease;
+    border: 2px solid #8C52FF;
+    display: none;
+    width: 80%;
+    max-width: 600px;
 }
 
-@keyframes panelSlide {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+.global-error {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FF4141;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 5px;
+    font-family: 'Bebas Neue', cursive;
+    z-index: 9999;
 }

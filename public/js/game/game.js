@@ -1,112 +1,152 @@
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-class GameInterface {
+class Game {
     constructor() {
-        this.playerData = null;
-        this.selectedCharacterId = localStorage.getItem('selectedCharacterId');
-        
-        this.init();
+        try {
+            // Verifica múltiplas fontes para o characterId
+            this.selectedCharacterId = 
+                localStorage.getItem('selectedCharacterId') ||
+                sessionStorage.getItem('selectedCharacterId') ||
+                new URLSearchParams(window.location.search).get('characterId');
+
+            if (!this.selectedCharacterId) {
+                throw new Error('ID do personagem não encontrado');
+            }
+
+            // Verifica inicialização do Firebase
+            if (!firebase.apps.length) {
+                throw new Error('Firebase não inicializado');
+            }
+
+            this.init();
+        } catch (error) {
+            console.error('Erro na inicialização:', error);
+            this.redirectToCharacterSelection();
+        }
     }
 
     async init() {
-        await this.loadCharacterData();
-        this.renderCharacter();
-        this.setupEventListeners();
-    }
-
-    async loadCharacterData() {
-        if (!this.selectedCharacterId) {
-            window.location.href = 'character-selection.html';
-            return;
-        }
-
-        const user = auth.currentUser;
-        const docRef = db.collection('players').doc(user.uid)
-                         .collection('characters').doc(this.selectedCharacterId);
-        
-        const doc = await docRef.get();
-        if (doc.exists) {
-            this.playerData = doc.data();
-        } else {
-            alert('Personagem não encontrado!');
-            window.location.href = 'character-selection.html';
+        try {
+            await this.loadCharacter();
+            this.setupEventListeners();
+        } catch (error) {
+            console.error('Erro na inicialização do jogo:', error);
+            this.redirectToCharacterSelection();
         }
     }
 
-    renderCharacter() {
-        // Dados Básicos
-        document.getElementById('playerName').textContent = this.playerData.name;
-        document.getElementById('playerLevel').textContent = this.playerData.level || 1;
-        
-        // Atributos
-        document.getElementById('atkValue').textContent = this.playerData.stats?.atk || 0;
-        document.getElementById('defValue').textContent = this.playerData.stats?.def || 0;
-        document.getElementById('spdValue').textContent = this.playerData.stats?.spd || 0;
-        
-        // Sprite
-        const spriteElement = document.getElementById('characterSprite');
-        spriteElement.style.backgroundImage = `url('${this.playerData.spritePath}')`;
+    async loadCharacter() {
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error('Usuário não autenticado');
+            
+            const docRef = db.collection('players').doc(user.uid)
+                            .collection('characters').doc(this.selectedCharacterId);
+            
+            const doc = await docRef.get();
+            
+            if (!doc.exists) throw new Error('Personagem não existe');
+            
+            this.characterData = doc.data();
+            this.updateUI();
+
+        } catch (error) {
+            console.error('Erro ao carregar personagem:', error);
+            this.redirectToCharacterSelection();
+        }
+    }
+
+    updateUI() {
+        try {
+            // Elementos da UI
+            const nameElement = document.getElementById('characterName');
+            const spriteElement = document.getElementById('characterSprite');
+            const atkElement = document.getElementById('atkValue');
+            const defElement = document.getElementById('defValue');
+
+            if (!nameElement || !spriteElement || !atkElement || !defElement) {
+                throw new Error('Elementos da UI não encontrados');
+            }
+
+            // Atualiza os dados
+            nameElement.textContent = this.characterData.name || 'Herói Sem Nome';
+            atkElement.textContent = this.characterData.stats?.atk ?? 0;
+            defElement.textContent = this.characterData.stats?.def ?? 0;
+            
+            // Carrega a imagem com fallback
+            if (this.characterData.spritePath) {
+                spriteElement.src = this.characterData.spritePath;
+                spriteElement.onerror = () => {
+                    spriteElement.src = 'assets/default-character.png';
+                };
+            } else {
+                spriteElement.src = 'assets/default-character.png';
+            }
+
+        } catch (error) {
+            console.error('Erro ao atualizar UI:', error);
+            this.showErrorMessage('Erro ao carregar interface');
+        }
     }
 
     setupEventListeners() {
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const action = e.currentTarget.dataset.action;
-                this.showActionPanel(action);
+        try {
+            const buttons = document.querySelectorAll('.nav-btn');
+            if (!buttons.length) throw new Error('Botões não encontrados');
+            
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.currentTarget.classList[1];
+                    this.handleAction(action);
+                });
             });
-        });
+        } catch (error) {
+            console.error('Erro ao configurar listeners:', error);
+        }
     }
 
-    showActionPanel(action) {
-        const panel = document.getElementById('actionPanel');
+    handleAction(action) {
+        const validActions = ['home', 'weapon', 'armor', 'guild', 'quests', 
+                            'inventory', 'skills', 'dungeon', 'events'];
         
-        const panels = {
-            combat: `
-                <h2>Combate</h2>
-                <div class="combat-options">
-                    <div class="enemy-card">
-                        <h3>Inimigo Aleatório</h3>
-                        <button class="attack-btn">Atacar</button>
-                    </div>
-                </div>
-            `,
-            train: `
-                <h2>Treinamento</h2>
-                <div class="training-options">
-                    <div class="train-option">
-                        <h3>Força</h3>
-                        <button class="train-btn">+5 ATQ (100 Ouro)</button>
-                    </div>
-                </div>
-            `,
-            shop: `
-                <h2>Loja</h2>
-                <div class="shop-items">
-                    <div class="item">
-                        <h3>Poção de Cura</h3>
-                        <button class="buy-btn">Comprar (50 Ouro)</button>
-                    </div>
-                </div>
-            `,
-            guild: `
-                <h2>Guilda</h2>
-                <div class="guild-management">
-                    <button class="create-guild">Criar Guilda</button>
-                    <div class="guild-list"></div>
-                </div>
-            `
-        };
+        if (!validActions.includes(action)) {
+            console.warn('Ação inválida:', action);
+            return;
+        }
+        
+        console.log('Ação selecionada:', action);
+        // Implementar lógica específica para cada ação
+    }
 
-        panel.innerHTML = panels[action];
+    redirectToCharacterSelection() {
+        localStorage.removeItem('selectedCharacterId');
+        sessionStorage.removeItem('selectedCharacterId');
+        window.location.href = 'character-selection.html';
+    }
+
+    showErrorMessage(message) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'global-error';
+        errorElement.textContent = message;
+        document.body.prepend(errorElement);
+        
+        setTimeout(() => {
+            errorElement.remove();
+        }, 5000);
     }
 }
 
-// Inicialização
+// Inicialização controlada
 auth.onAuthStateChanged(user => {
-    if (user) {
-        new GameInterface();
-    } else {
+    try {
+        if (user) {
+            new Game();
+        } else {
+            window.location.href = 'index.html';
+        }
+    } catch (error) {
+        console.error('Erro na inicialização do auth:', error);
         window.location.href = 'index.html';
     }
 });
