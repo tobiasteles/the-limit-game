@@ -1,3 +1,7 @@
+// Adicione no topo do arquivo
+import { InventorySystem } from '/public/js/inventory.js';
+
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -17,8 +21,10 @@ class Game {
                 throw new Error('Firebase não inicializado');
             }
 
+            this.inventory = null; // Adicionado aqui
+
             this.init();
-            this.setupReturnButton(); // Novo método adicionado
+            this.setupReturnButton();
         } catch (error) {
             console.error('Erro na inicialização:', error);
             this.redirectToCharacterSelection();
@@ -35,7 +41,16 @@ class Game {
         }
     }
 
-    // Novo método para configurar o botão de retorno
+    initializeInventory() {
+        try {
+            this.inventory = new InventorySystem(this.selectedCharacterId);
+            console.log('Inventário inicializado:', this.inventory);
+        } catch (error) {
+            console.error('Erro ao iniciar inventário:', error);
+            this.showErrorMessage('Falha ao carregar inventário');
+        }
+    }
+
     setupReturnButton() {
         const returnButton = document.getElementById('returnButton');
         if (returnButton) {
@@ -59,6 +74,9 @@ class Game {
             
             this.characterData = doc.data();
             this.updateUI();
+
+            // Inicializa o inventário
+            this.inventory = new InventorySystem(this.selectedCharacterId);
 
         } catch (error) {
             console.error('Erro ao carregar personagem:', error);
@@ -120,13 +138,17 @@ class Game {
             console.warn('Ação inválida:', action);
             return;
         }
-        
+
+        if (action === 'inventory') {
+            this.inventory?.toggleInventory(true);
+            return;
+        }
+
         console.log('Ação selecionada:', action);
     }
 
     redirectToCharacterSelection() {
-        // Limpeza adicional se necessário
-        if (this.chat) { // Mantido para caso volte a implementar o chat
+        if (this.chat) {
             this.chat.destroy();
         }
         

@@ -213,5 +213,184 @@ body {
     height: 24px;
 }
 
+/* Inventário */
+.inventory-panel {
+    width: 600px;
+    padding: 20px;
+}
 
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.inventory-slot {
+    position: relative;
+    background: #1B1B2F;
+    border: 2px solid #5D5FEF;
+    border-radius: 8px;
+    min-height: 100px;
+    padding: 10px;
+    text-align: center;
+}
+
+.inventory-slot img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+}
+
+.slot-label {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    color: #8C52FF;
+    font-size: 0.8em;
+}
+
+.item-name {
+    display: block;
+    margin-top: 5px;
+    color: #FFFFFF;
+    font-size: 0.9em;
+}
+
+/* Layout específico dos slots */
+.head-slot { grid-column: 2; }
+.torso-slot { grid-column: 2; grid-row: 2; }
+.arms-slot { grid-column: 1; grid-row: 2; }
+.legs-slot { grid-column: 3; grid-row: 2; }
+.main-hand { grid-column: 1; grid-row: 3; }
+.off-hand { grid-column: 3; grid-row: 3; }
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5D5FEF;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #FF4141;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #8C52FF;
+    transform: scale(1.2);
+}
+
+.slot-label {
+    color: #5D5FEF;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+}
+
+.default-item {
+    width: 50px;
+    height: 50px;
+    opacity: 0.3;
+}
+
+#inventoryCloseBtn {
+    background: none;
+    border: none;
+    color: #FF4141;
+    font-size: 2rem;
+    line-height: 1;
+    padding: 0 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#inventoryCloseBtn:hover {
+    color: #8C52FF;
+    transform: rotate(90deg);
+}
+
+/* Estilos para o novo layout */
+.inventory-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.gold-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #FFD700;
+    font-weight: bold;
+}
+
+.gold-display img {
+    width: 24px;
+    height: 24px;
+}
+
+.items-column {
+    background: #1B1B2F;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #5D5FEF;
+}
+
+.items-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.item-card {
+    background: #2A2A4A;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #8C52FF;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-3px);
+    background: #3A3A5A;
+}
+
+.item-card img {
+    width: 40px;
+    height: 40px;
+    display: block;
+    margin: 0 auto;
+}
+
+.item-info {
+    margin-top: 8px;
+    text-align: center;
+}
+
+.item-name {
+    color: #FFFFFF;
+    font-size: 0.9em;
+}
+
+.item-quantity {
+    color: #5D5FEF;
+    font-size: 0.8em;
+}
 

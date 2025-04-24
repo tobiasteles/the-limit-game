@@ -106,10 +106,43 @@
         </footer>
 
         <!-- Action Panels (hidden by default) -->
-        <section class="action-panel" id="inventoryPanel"></section>
+        <section class="action-panel inventory-panel" id="inventoryPanel">
+            <div class="panel-header">
+                <h2>Inventário</h2>
+                <div class="gold-display">
+                    <img src="assets/icons/gold.png" alt="Gold">
+                    <span id="goldAmount">0</span>
+                </div>
+                <button class="close-btn" id="inventoryCloseBtn">&times;</button>
+            </div>
+            
+            <div class="inventory-content">
+                <!-- Coluna de Equipamentos -->
+                <div class="equipment-column">
+                    <div class="inventory-grid">
+                        <div class="inventory-slot head-slot" id="headSlot" data-label="Cabeça"></div>
+                        <div class="inventory-slot torso-slot" id="torsoSlot" data-label="Torso"></div>
+                        <div class="inventory-slot arms-slot" id="armsSlot" data-label="Braços"></div>
+                        <div class="inventory-slot legs-slot" id="legsSlot" data-label="Pernas"></div>
+                        <div class="inventory-slot main-hand" id="mainHandSlot" data-label="Mão Direita"></div>
+                        <div class="inventory-slot off-hand" id="offHandSlot" data-label="Mão Esquerda"></div>
+                    </div>
+                </div>
+        
+                <!-- Coluna de Itens -->
+                <div class="items-column">
+                    <h3>Itens Disponíveis</h3>
+                    <div class="items-list" id="itemsList">
+                        <!-- Itens serão inseridos aqui via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        
         <section class="action-panel" id="shopPanel"></section>
     </div>
 
+   
    <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -120,6 +153,7 @@
 <script src="js/firebase/firebase-config.js"></script>
 
 <!-- Depois seus outros scripts -->
-<script src="js/game/game.js"></script>
+<script type="module" src="js/inventory.js"></script>
+<script type="module" src="js/game/game.js"></script>
 </body>
 </html>
