@@ -88,6 +88,12 @@ async function createCharacter() {
         class: selectedClass.name,
         level: 1,
         stats: selectedClass.stats,
+        attributes: {
+            str: selectedClass.stats.atk,
+            int: selectedClass.name === 'Mago' || selectedClass.name === 'Necromancer' ? 15 : 10,
+            spd: selectedClass.stats.spd
+        },
+        availablePoints: 0,
         spritePath: selectedClass.sprite,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -98,7 +104,7 @@ async function createCharacter() {
             .doc(user.uid)
             .collection('characters')
             .add(newCharacter);
-        
+
         window.location.href = 'character-selection.html';
     } catch (error) {
         console.error('Erro ao criar personagem:', error);
@@ -119,9 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             try {
                 updateClassDisplay();
-                // ... resto do código ...
                 
-                // Preencher grid de classes
                 const grid = document.getElementById('class-grid');
                 classes.forEach((cls, index) => {
                     const classItem = document.createElement('div');

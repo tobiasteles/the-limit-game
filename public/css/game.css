@@ -1,20 +1,24 @@
-/* Estilos Base */
+/* Reset e Fonte Base */
 body {
+    margin: 0;
+    padding: 0;
     background-color: #0A0A0A;
     color: #FFFFFF;
-    margin: 0;
+    font-family: 'Bebas Neue', cursive;
     height: 100vh;
-    font-family: 'Anton', sans-serif;
 }
 
+/* Contêiner Principal */
 .game-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     padding: 10px;
+    background-color: #0A0A0A;
+    position: relative;
 }
 
-/* Top Bar */
+/* Topo */
 .top-bar {
     background: #1B1B2F;
     padding: 10px;
@@ -27,16 +31,12 @@ body {
     align-items: center;
 }
 
-.health-bar, .mana-bar, .level-display {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
+/* Barras */
 .bar {
     width: 200px;
     height: 20px;
     background: #0A0A0A;
+    border: 2px solid #5D5FEF;
     border-radius: 10px;
     overflow: hidden;
 }
@@ -44,19 +44,19 @@ body {
 .fill {
     height: 100%;
     transition: width 0.3s ease;
+    box-shadow: 0 0 10px #8C52FF;
 }
 
-.hp { background: #FF4141; }
-.mana { background: #5D5FEF; }
-.xp { background: #8C52FF; }
+.hp { background-color: #FF4141; }
+.mana { background-color: #5D5FEF; }
+.xp { background-color: #8C52FF; }
 
 .level-display {
     color: #8C52FF;
-    font-family: 'Bebas Neue', cursive;
     font-size: 1.5rem;
 }
 
-/* Main Content */
+/* Área Principal */
 .main-content {
     flex: 1;
     display: flex;
@@ -64,7 +64,6 @@ body {
     padding: 20px 0;
 }
 
-/* Panels */
 .left-panel, .right-panel {
     width: 200px;
     display: flex;
@@ -76,33 +75,57 @@ body {
     border-radius: 10px;
 }
 
-.nav-btn {
-    padding: 15px;
-    border: none;
-    border-radius: 8px;
+/* Botões */
+.nav-btn,
+.return-button,
+.save-btn,
+.plus-btn,
+.setting-btn {
     background: #1B1B2F;
     color: #FFFFFF;
+    border: 2px solid #5D5FEF;
     font-family: 'Bebas Neue', cursive;
     font-size: 1.2rem;
     cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.3s ease;
-    border: 1px solid #5D5FEF;
+    border-radius: 8px;
 }
 
-.nav-btn:hover {
+.nav-btn:hover,
+.return-button:hover,
+.save-btn:hover,
+.plus-btn:hover,
+.setting-btn:hover {
     background: #5D5FEF;
+    box-shadow: 0 0 15px #8C52FF;
     transform: translateX(5px);
 }
 
+.return-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #FF4141;
+    z-index: 1001;
+}
+
+.return-button:hover {
+    background: #8C52FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
+}
+
+.return-button img,
 .nav-btn img {
     width: 24px;
     height: 24px;
 }
 
-/* Character Area */
+/* Área do Personagem */
 .character-area {
     flex: 1;
     display: flex;
@@ -114,8 +137,8 @@ body {
     text-align: center;
     padding: 20px;
     background: #1B1B2F;
-    border-radius: 10px;
     border: 2px solid #8C52FF;
+    border-radius: 10px;
 }
 
 .character-sprite {
@@ -141,20 +164,7 @@ body {
     color: #FFFFFF;
 }
 
-/* Bottom Bar */
-.bottom-bar {
-    background: #1B1B2F;
-    padding: 10px;
-    border-top: 2px solid #5D5FEF;
-}
-
-.xp-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Action Panels */
+/* Action Panels Genéricos */
 .action-panel {
     position: fixed;
     top: 50%;
@@ -162,13 +172,39 @@ body {
     transform: translate(-50%, -50%);
     background: #1B1B2F;
     padding: 30px;
+    border: 3px solid #5D5FEF;
+    box-shadow: 0 0 30px #8C52FF;
     border-radius: 10px;
-    border: 2px solid #8C52FF;
     display: none;
     width: 80%;
     max-width: 600px;
 }
 
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5D5FEF;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #FF4141;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #8C52FF;
+    transform: scale(1.2);
+}
+
+/* Mensagem de Erro */
 .global-error {
     position: fixed;
     top: 20px;
@@ -182,38 +218,7 @@ body {
     z-index: 9999;
 }
 
-/* Botão de retorno */
-.return-button {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    background: #FF4141;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    z-index: 1001;
-}
-
-.return-button:hover {
-    background: #8C52FF;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
-}
-
-.return-button img {
-    width: 24px;
-    height: 24px;
-}
-
-/* Inventário */
+/* Inventário Geral */
 .inventory-panel {
     width: 600px;
     padding: 20px;
@@ -243,54 +248,6 @@ body {
 }
 
 .slot-label {
-    position: absolute;
-    bottom: 5px;
-    left: 0;
-    right: 0;
-    color: #8C52FF;
-    font-size: 0.8em;
-}
-
-.item-name {
-    display: block;
-    margin-top: 5px;
-    color: #FFFFFF;
-    font-size: 0.9em;
-}
-
-/* Layout específico dos slots */
-.head-slot { grid-column: 2; }
-.torso-slot { grid-column: 2; grid-row: 2; }
-.arms-slot { grid-column: 1; grid-row: 2; }
-.legs-slot { grid-column: 3; grid-row: 2; }
-.main-hand { grid-column: 1; grid-row: 3; }
-.off-hand { grid-column: 3; grid-row: 3; }
-
-.panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #5D5FEF;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: #FF4141;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
-    transition: all 0.3s ease;
-}
-
-.close-btn:hover {
-    color: #8C52FF;
-    transform: scale(1.2);
-}
-
-.slot-label {
     color: #5D5FEF;
     font-size: 0.8em;
     position: absolute;
@@ -310,8 +267,6 @@ body {
     border: none;
     color: #FF4141;
     font-size: 2rem;
-    line-height: 1;
-    padding: 0 8px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -321,7 +276,7 @@ body {
     transform: rotate(90deg);
 }
 
-/* Estilos para o novo layout */
+/* Layout Inventário Detalhado */
 .inventory-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -394,3 +349,232 @@ body {
     font-size: 0.8em;
 }
 
+/* Layout específico dos slots */
+.head-slot { grid-column: 2; }
+.torso-slot { grid-column: 2; grid-row: 2; }
+.arms-slot { grid-column: 1; grid-row: 2; }
+.legs-slot { grid-column: 3; grid-row: 2; }
+.main-hand { grid-column: 1; grid-row: 3; }
+.off-hand { grid-column: 3; grid-row: 3; }
+
+/* Painel da Casa (Home Panel) */
+.home-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1B1B2F;
+    border: 3px solid #5D5FEF;
+    box-shadow: 0 0 30px rgba(140, 82, 255, 0.3);
+    border-radius: 15px;
+    width: 600px;
+    max-height: 80vh;
+    padding: 25px;
+    z-index: 1000;
+    display: none;
+}
+
+.home-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    height: 100%;
+}
+
+/* Seção do Perfil */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 20px;
+    border-right: 2px solid #5D5FEF;
+}
+
+.character-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.character-summary .character-sprite {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #8C52FF;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.character-meta h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #8C52FF;
+    letter-spacing: 1px;
+}
+
+.xp-bar.mini {
+    margin-top: 10px;
+}
+
+.xp-bar.mini .bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Configurações Rápidas */
+.quick-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setting-btn {
+    background: #0A0A0A;
+    border: 1px solid #5D5FEF;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.setting-btn:hover {
+    background: #5D5FEF;
+    transform: translateX(5px);
+}
+
+.setting-btn img {
+    width: 24px;
+    filter: drop-shadow(0 0 2px #8C52FF);
+}
+
+/* Seção de Atributos */
+.status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.attributes-management {
+    background: #0A0A0A;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #5D5FEF;
+}
+
+.attributes-management h4 {
+    color: #8C52FF;
+    margin: 0 0 15px;
+    font-size: 1.3rem;
+}
+
+.points-remaining {
+    color: #FF4141;
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 5px;
+}
+
+.attribute-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #1B1B2F;
+    border-radius: 6px;
+}
+
+.attr-name {
+    color: #FFFFFF;
+    font-size: 1.1rem;
+}
+
+.attr-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.attr-value {
+    color: #5D5FEF;
+    font-size: 1.2rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.plus-btn {
+    background: #5D5FEF;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.plus-btn:hover {
+    background: #8C52FF;
+    transform: scale(1.1);
+}
+
+/* Inventário Rápido dentro do Home */
+.compact-inventory {
+    margin-top: auto;
+}
+
+.quick-slots {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.quick-slot {
+    background: #1B1B2F;
+    border: 1px solid #5D5FEF;
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.quick-slot img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}
+
+.item-count, .quick-slot .item-count {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    background: #FF4141;
+    color: white;
+    font-size: 0.8rem;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Botão Salvar */
+.save-btn {
+    width: 100%;
+    background: #8C52FF;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+    background: #5D5FEF;
+    letter-spacing: 1px;
+}

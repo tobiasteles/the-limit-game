@@ -1,7 +1,6 @@
 // Adicione no topo do arquivo
 import { InventorySystem } from '/public/js/inventory.js';
 
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -21,7 +20,7 @@ class Game {
                 throw new Error('Firebase não inicializado');
             }
 
-            this.inventory = null; // Adicionado aqui
+            this.inventory = null;
 
             this.init();
             this.setupReturnButton();
@@ -35,9 +34,115 @@ class Game {
         try {
             await this.loadCharacter();
             this.setupEventListeners();
+            this.setupHomePanel(); // Nova linha adicionada
+            this.initializeInventory();
         } catch (error) {
             console.error('Erro na inicialização do jogo:', error);
             this.redirectToCharacterSelection();
+        }
+    }
+
+    setupHomePanel() {
+        this.homePanel = document.getElementById('homePanel');
+        document.querySelector('.nav-btn.home').addEventListener('click', () => this.toggleHomePanel(true));
+        document.getElementById('homeCloseBtn').addEventListener('click', () => this.toggleHomePanel(false));
+        
+        document.querySelectorAll('.plus-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleAttributeIncrease(e));
+        });
+
+        document.getElementById('saveAttributes').addEventListener('click', () => this.saveAttributes());
+    }
+
+    toggleHomePanel(show) {
+        if (show) {
+            this.loadHomePanelData();
+            this.homePanel.style.display = 'block';
+        } else {
+            this.homePanel.style.display = 'none';
+        }
+    }
+
+    async loadHomePanelData() {
+        try {
+            const user = auth.currentUser;
+            const doc = await db.collection('players').doc(user.uid)
+                .collection('characters').doc(this.selectedCharacterId).get();
+
+            if (doc.exists) {
+                const data = doc.data();
+                
+                document.getElementById('homeCharacterName').textContent = data.name;
+                document.getElementById('homeCharacterSprite').src = data.spritePath;
+                document.getElementById('characterLevel').textContent = data.level || 1;
+                
+                document.getElementById('strValue').textContent = data.attributes?.str || 0;
+                document.getElementById('intValue').textContent = data.attributes?.int || 0;
+                document.getElementById('spdValue').textContent = data.attributes?.spd || 0;
+                
+                const points = data.availablePoints || 0;
+                document.getElementById('pointsRemaining').textContent = 
+                    `${points} ponto${points !== 1 ? 's' : ''} disponível${points !== 1 ? 's' : ''}`;
+
+                this.updateQuickInventory(data.inventory);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados da casa:', error);
+        }
+    }
+
+    updateQuickInventory(inventory) {
+        const quickSlots = document.getElementById('quickSlots');
+        quickSlots.innerHTML = '';
+
+        const itemsToShow = inventory?.items?.slice(0, 4) || [];
+        itemsToShow.forEach(item => {
+            const slot = document.createElement('div');
+            slot.className = 'quick-slot';
+            slot.innerHTML = `
+                <img src="${item.icon}" alt="${item.name}">
+                <span class="item-count">${item.quantity || 1}</span>
+            `;
+            quickSlots.appendChild(slot);
+        });
+    }
+
+    handleAttributeIncrease(e) {
+        const pointsElement = document.getElementById('pointsRemaining');
+        const currentPoints = parseInt(pointsElement.textContent) || 0;
+        
+        if (currentPoints > 0) {
+            const attr = e.target.dataset.attr;
+            const valueElement = document.getElementById(`${attr}Value`);
+            valueElement.textContent = parseInt(valueElement.textContent) + 1;
+            pointsElement.textContent = `${currentPoints - 1} pontos disponíveis`;
+        }
+    }
+
+    async saveAttributes() {
+        try {
+            const user = auth.currentUser;
+            const newAttributes = {
+                str: parseInt(document.getElementById('strValue').textContent),
+                int: parseInt(document.getElementById('intValue').textContent),
+                spd: parseInt(document.getElementById('spdValue').textContent)
+            };
+
+            const pointsUsed = this.characterData.availablePoints - 
+                parseInt(document.getElementById('pointsRemaining').textContent);
+
+            await db.collection('players').doc(user.uid)
+                .collection('characters').doc(this.selectedCharacterId)
+                .update({
+                    attributes: newAttributes,
+                    availablePoints: firebase.firestore.FieldValue.increment(-pointsUsed)
+                });
+
+            alert('Atributos salvos com sucesso!');
+            this.loadCharacter();
+        } catch (error) {
+            console.error('Erro ao salvar atributos:', error);
+            alert('Erro ao salvar atributos!');
         }
     }
 
@@ -74,10 +179,7 @@ class Game {
             
             this.characterData = doc.data();
             this.updateUI();
-
-            // Inicializa o inventário
             this.inventory = new InventorySystem(this.selectedCharacterId);
-
         } catch (error) {
             console.error('Erro ao carregar personagem:', error);
             this.redirectToCharacterSelection();
