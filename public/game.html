@@ -138,6 +138,47 @@
                 </div>
             </div>
         </section>
+
+        <!-- Arsenal Panel -->
+        <section class="action-panel weapons-panel" id="weaponsPanel">
+            <div class="panel-header">
+                <h2>Arsenal</h2>
+                <button class="close-btn" id="weaponsCloseBtn">&times;</button>
+            </div>
+            
+            <div class="weapons-content">
+                <!-- Arma Atual -->
+                <div class="current-weapon">
+                    <h3>Equipado: <span id="currentWeaponName">Espada de Ferro</span></h3>
+                    <div class="weapon-stats">
+                        <div class="stat"><span>Nível:</span> <span id="weaponLevel">25</span></div>
+                        <div class="stat"><span>Material:</span> <span id="weaponMaterial">Ferro</span></div>
+                        <div class="stat"><span>ATQ:</span> <span id="weaponAtk">+15</span></div>
+                        <div class="stat"><span>DEF:</span> <span id="weaponDef">+5</span></div>
+                    </div>
+                </div>
+
+                <!-- Progressão de Melhoria -->
+                <div class="upgrade-path">
+                    <h4>Caminho de Forja</h4>
+                    <div class="materials-grid" id="materialsGrid">
+                        <!-- Gerado via JS -->
+                    </div>
+                </div>
+
+                <!-- Requisitos de Upgrade -->
+                <div class="upgrade-requirements">
+                    <h4>Próximo Nível</h4>
+                    <div class="requirement">
+                        <span>Ouro Necessário:</span>
+                        <span id="requiredGold">1,500</span>
+                        <img src="assets/icons/gold.png" alt="Ouro" width="20" height="20">
+                    </div>
+                    <button class="upgrade-btn" id="btnUpgrade">Forjar Melhoria</button>
+                </div>
+            </div>
+        </section>
+
         <!-- Home Panel -->
         <section class="action-panel home-panel" id="homePanel">
             <div class="panel-header">
@@ -220,18 +261,17 @@
         <section class="action-panel" id="shopPanel"></section>
     </div>
 
-   
-   <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<!-- Configuração do Firebase DEVE vir primeiro -->
-<script src="js/firebase/firebase-config.js"></script>
+    <!-- Configuração do Firebase DEVE vir primeiro -->
+    <script src="js/firebase/firebase-config.js"></script>
 
-<!-- Depois seus outros scripts -->
-<script type="module" src="js/inventory.js"></script>
-<script type="module" src="js/game/game.js"></script>
+    <!-- Depois seus outros scripts -->
+    <script type="module" src="js/inventory.js"></script>
+    <script type="module" src="js/game/game.js"></script>
 </body>
 </html>

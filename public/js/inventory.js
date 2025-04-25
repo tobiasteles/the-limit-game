@@ -38,6 +38,18 @@ export class InventorySystem {
             const gold = data.gold || 0;
             if (this.goldElement) this.goldElement.textContent = gold;
 
+            // Carregar a arma equipada
+            const weaponData = data.weapon || {};
+            if (weaponData.type) {
+                this.inventoryData.mainHand = {
+                    name: `${weaponData.type} ${weaponData.currentMaterial}`,
+                    icon: this.getWeaponIcon(weaponData.type),
+                    type: 'weapon',
+                    stats: weaponData.stats,
+                    level: weaponData.level
+                };
+            }
+
             this.items = data.items || [];
             this.updateInventoryUI();
             this.updateItemsList();
@@ -47,6 +59,18 @@ export class InventorySystem {
             this.items = [];
             this.updateItemsList();
         }
+    }
+
+    getWeaponIcon(weaponType) {
+        const icons = {
+            'Espada de Duas Mãos': 'assets/weapons/greatsword.png',
+            'Espada e Escudo': 'assets/weapons/swordshield.png',
+            'Adagas Gêmeas': 'assets/weapons/daggers.png',
+            'Arco Longo': 'assets/weapons/bow.png',
+            'Cajado Arcano': 'assets/weapons/staff.png',
+            'Cetro das Trevas': 'assets/weapons/scepter.png'
+        };
+        return icons[weaponType] || 'assets/weapons/default.png';
     }
 
     setupCloseButton() {
@@ -71,6 +95,7 @@ export class InventorySystem {
             offHand: document.getElementById('offHandSlot')
         };
 
+        // Atualizar slots com base no inventário
         Object.entries(this.inventoryData).forEach(([slot, item]) => {
             const slotElement = slots[slot];
             if (!slotElement) {
@@ -79,10 +104,22 @@ export class InventorySystem {
             }
 
             if (item) {
-                slotElement.innerHTML = `
-                    <img src="${item.icon}" alt="${item.name}" onerror="this.src='assets/default-item.png'">
-                    <span class="item-name">${item.name}</span>
-                `;
+                // Verifica se é arma equipada para mostrar stats
+                if (slot === 'mainHand' && item.type === 'weapon') {
+                    slotElement.innerHTML = `
+                        <img src="${item.icon}" alt="${item.name}" onerror="this.src='assets/default-item.png'">
+                        <span class="item-name">${item.name}</span>
+                        <div class="weapon-stats">
+                            <span>ATQ: +${item.stats.atk}</span>
+                            <span>Nv: ${item.level}</span>
+                        </div>
+                    `;
+                } else {
+                    slotElement.innerHTML = `
+                        <img src="${item.icon}" alt="${item.name}" onerror="this.src='assets/default-item.png'">
+                        <span class="item-name">${item.name}</span>
+                    `;
+                }
             } else {
                 slotElement.innerHTML = `<span class="slot-label">${slotElement.dataset.label}</span>`;
             }

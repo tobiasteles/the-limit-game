@@ -41,6 +41,41 @@ const classes = [
     }
 ];
 
+const CLASS_WEAPONS = {
+    Guerreiro: {
+        type: 'Espada de Duas Mãos',
+        materials: gerarMateriais()
+    },
+    Cavaleiro: {
+        type: 'Espada e Escudo',
+        materials: gerarMateriais()
+    },
+    Assassino: {
+        type: 'Adagas Gêmeas',
+        materials: gerarMateriais()
+    },
+    Arqueiro: {
+        type: 'Arco Longo',
+        materials: gerarMateriais()
+    },
+    Mago: {
+        type: 'Cajado Arcano',
+        materials: gerarMateriais()
+    },
+    Necromancer: {
+        type: 'Cetro das Trevas',
+        materials: gerarMateriais()
+    }
+};
+
+function gerarMateriais() {
+    const materiais = {};
+    for (let i = 1; i <= 100; i++) {
+        materiais[i] = { atk: 5 + i }; // Exemplo: ATQ aumenta com o nível do material
+    }
+    return materiais;
+}
+
 let currentClassIndex = 0;
 
 function updateClassDisplay() {
@@ -66,7 +101,19 @@ function previousClass() {
     updateClassDisplay();
 }
 
-// Modifique a função createCharacter
+function getWeaponIcon(weaponType) {
+    const icons = {
+        'Espada de Duas Mãos': 'assets/weapons/greatsword.png',
+        'Espada e Escudo': 'assets/weapons/swordshield.png',
+        'Adagas Gêmeas': 'assets/weapons/daggers.png',
+        'Arco Longo': 'assets/weapons/bow.png',
+        'Cajado Arcano': 'assets/weapons/staff.png',
+        'Cetro das Trevas': 'assets/weapons/scepter.png'
+    };
+    return icons[weaponType] || 'assets/weapons/default.png';
+}
+
+// Função para criar personagem
 async function createCharacter() {
     const user = auth.currentUser;
     if (!user) {
@@ -83,6 +130,9 @@ async function createCharacter() {
         return;
     }
 
+    const weaponType = CLASS_WEAPONS[selectedClass.name].type;
+    const weaponStats = CLASS_WEAPONS[selectedClass.name].materials[25];
+
     const newCharacter = {
         name: characterName,
         class: selectedClass.name,
@@ -95,7 +145,23 @@ async function createCharacter() {
         },
         availablePoints: 0,
         spritePath: selectedClass.sprite,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        gold: 1000,
+        inventory: {
+            mainHand: {
+                name: `${weaponType} Ferro`,
+                icon: getWeaponIcon(weaponType),
+                type: 'weapon',
+                stats: weaponStats,
+                level: 1
+            }
+        },
+        weapon: {
+            type: weaponType,
+            level: 1,
+            currentMaterial: 'Ferro',
+            stats: weaponStats
+        }
     };
 
     try {
@@ -112,12 +178,12 @@ async function createCharacter() {
     }
 }
 
-// Adicione contador de caracteres
+// Contador de caracteres
 document.getElementById('characterName').addEventListener('input', function(e) {
     document.getElementById('nameCounter').textContent = `${e.target.value.length}/20`;
 });
 
-// Adicione verificação de autenticação no carregamento
+// Verificação de autenticação no carregamento
 document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged(user => {
         if (!user) {

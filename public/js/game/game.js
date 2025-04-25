@@ -1,5 +1,6 @@
-// Adicione no topo do arquivo
+// Importar no topo
 import { InventorySystem } from '/public/js/inventory.js';
+import { CLASS_WEAPONS, calculateWeaponPrice } from './weapons/classWeapons.js';
 
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -12,13 +13,8 @@ class Game {
                 sessionStorage.getItem('selectedCharacterId') ||
                 new URLSearchParams(window.location.search).get('characterId');
 
-            if (!this.selectedCharacterId) {
-                throw new Error('ID do personagem não encontrado');
-            }
-
-            if (!firebase.apps.length) {
-                throw new Error('Firebase não inicializado');
-            }
+            if (!this.selectedCharacterId) throw new Error('ID do personagem não encontrado');
+            if (!firebase.apps.length) throw new Error('Firebase não inicializado');
 
             this.inventory = null;
 
@@ -34,7 +30,8 @@ class Game {
         try {
             await this.loadCharacter();
             this.setupEventListeners();
-            this.setupHomePanel(); // Nova linha adicionada
+            this.setupHomePanel();
+            this.setupWeaponsSystem();
             this.initializeInventory();
         } catch (error) {
             console.error('Erro na inicialização do jogo:', error);
@@ -156,6 +153,93 @@ class Game {
         }
     }
 
+    setupWeaponsSystem() {
+        this.weaponsPanel = document.getElementById('weaponsPanel');
+        document.querySelector('.nav-btn.weapon').addEventListener('click', () => this.toggleWeaponsPanel(true));
+        document.getElementById('weaponsCloseBtn').addEventListener('click', () => this.toggleWeaponsPanel(false));
+        document.getElementById('btnUpgrade').addEventListener('click', () => this.upgradeWeapon());
+    }
+
+    async toggleWeaponsPanel(show) {
+        if (show) {
+            await this.loadWeaponData();
+            this.weaponsPanel.style.display = 'block';
+        } else {
+            this.weaponsPanel.style.display = 'none';
+        }
+    }
+
+    async loadWeaponData() {
+        const user = auth.currentUser;
+        const doc = await db.collection('players').doc(user.uid)
+            .collection('characters').doc(this.selectedCharacterId).get();
+        
+        const weaponData = doc.data().weapon || this.createInitialWeapon();
+        this.currentWeapon = weaponData;
+        this.updateWeaponUI();
+        this.populateMaterialsGrid();
+    }
+
+    createInitialWeapon() {
+        const classData = CLASS_WEAPONS[this.characterData.class];
+        return {
+            type: classData.type,
+            level: 1,
+            currentMaterial: Object.keys(classData.materials)[0],
+            stats: classData.materials[25]
+        };
+    }
+
+    updateWeaponUI() {
+        document.getElementById('currentWeaponName').textContent = `${this.currentWeapon.type} ${this.currentWeapon.currentMaterial}`;
+        document.getElementById('weaponLevel').textContent = this.currentWeapon.level;
+        document.getElementById('weaponMaterial').textContent = this.currentWeapon.stats.name;
+        document.getElementById('weaponAtk').textContent = `+${this.currentWeapon.stats.atk}`;
+        document.getElementById('weaponDef').textContent = `+${this.currentWeapon.stats.def}`;
+        
+        const nextLevel = Math.ceil(this.currentWeapon.level / 25) * 25 + 25;
+        const requiredGold = calculateWeaponPrice(this.currentWeapon.stats.price, nextLevel);
+        document.getElementById('requiredGold').textContent = requiredGold.toLocaleString();
+    }
+
+    async upgradeWeapon() {
+        const user = auth.currentUser;
+        const currentGold = this.characterData.gold;
+        const requiredGold = parseInt(document.getElementById('requiredGold').textContent.replace(/,/g, ''));
+
+        if (currentGold < requiredGold) {
+            this.showMessage('Ouro insuficiente para melhorar!', '#FF4141');
+            return;
+        }
+
+        try {
+            const nextLevel = this.currentWeapon.level + 25;
+            const newMaterial = CLASS_WEAPONS[this.characterData.class].materials[nextLevel];
+
+            await db.collection('players').doc(user.uid)
+                .collection('characters').doc(this.selectedCharacterId)
+                .update({
+                    'weapon.level': nextLevel,
+                    'weapon.currentMaterial': newMaterial.name,
+                    'weapon.stats': newMaterial,
+                    'gold': firebase.firestore.FieldValue.increment(-requiredGold)
+                });
+
+            await this.loadWeaponData();
+            this.showMessage('Arma melhorada com sucesso!', '#8C52FF');
+
+            // Atualizar o inventário
+            await this.inventory.loadInventory();
+            this.inventory.updateInventoryUI();
+        } catch (error) {
+            console.error('Erro ao melhorar arma:', error);
+        }
+    }
+
+    populateMaterialsGrid() {
+        // opcional, depende do teu design
+    }
+
     setupReturnButton() {
         const returnButton = document.getElementById('returnButton');
         if (returnButton) {
@@ -174,7 +258,6 @@ class Game {
                             .collection('characters').doc(this.selectedCharacterId);
             
             const doc = await docRef.get();
-            
             if (!doc.exists) throw new Error('Personagem não existe');
             
             this.characterData = doc.data();
@@ -200,7 +283,7 @@ class Game {
             nameElement.textContent = this.characterData.name || 'Herói Sem Nome';
             atkElement.textContent = this.characterData.stats?.atk ?? 0;
             defElement.textContent = this.characterData.stats?.def ?? 0;
-            
+
             if (this.characterData.spritePath) {
                 spriteElement.src = this.characterData.spritePath;
                 spriteElement.onerror = () => {
@@ -250,10 +333,7 @@ class Game {
     }
 
     redirectToCharacterSelection() {
-        if (this.chat) {
-            this.chat.destroy();
-        }
-        
+        if (this.chat) this.chat.destroy();
         localStorage.removeItem('selectedCharacterId');
         sessionStorage.removeItem('selectedCharacterId');
         window.location.href = 'character-selection.html';
@@ -264,10 +344,16 @@ class Game {
         errorElement.className = 'global-error';
         errorElement.textContent = message;
         document.body.prepend(errorElement);
-        
-        setTimeout(() => {
-            errorElement.remove();
-        }, 5000);
+        setTimeout(() => errorElement.remove(), 5000);
+    }
+
+    showMessage(text, color) {
+        const msg = document.createElement('div');
+        msg.textContent = text;
+        msg.style.backgroundColor = color;
+        msg.className = 'message-popup';
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 3000);
     }
 }
 

@@ -578,3 +578,141 @@ body {
     background: #5D5FEF;
     letter-spacing: 1px;
 }
+
+/* Estilo Base do Botão de Armas */
+.nav-btn.weapon {
+    background-color: #0A0A0A;
+    border: 2px solid #5D5FEF;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    color: #FFFFFF;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* Efeito de Brilho Mágico no Hover */
+.nav-btn.weapon:hover {
+    border-color: #8C52FF;
+    box-shadow: 0 0 15px #5D5FEF,
+                inset 0 0 10px rgba(93, 95, 239, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Efeito de Pressão */
+.nav-btn.weapon:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 8px #5D5FEF;
+}
+
+/* Ícone da Arma */
+.nav-btn.weapon img {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 0 5px #5D5FEF);
+    transition: all 0.3s ease;
+}
+
+/* Animação do Ícone no Hover */
+.nav-btn.weapon:hover img {
+    filter: drop-shadow(0 0 8px #8C52FF) brightness(1.2);
+    transform: scale(1.1) rotate(-5deg);
+}
+
+/* Efeito de Destaque Ativo */
+.nav-btn.weapon.active {
+    background: linear-gradient(45deg, #0A0A0A 50%, #1B1B2F 100%);
+    border-color: #FF4141;
+    box-shadow: 0 0 20px rgba(255, 65, 65, 0.5);
+}
+
+/* Painel de Armas */
+#weaponsPanel {
+    background: #1B1B2F;
+    border: 2px solid #5D5FEF;
+    box-shadow: 0 0 30px rgba(93, 95, 239, 0.4);
+}
+
+/* Título do Painel */
+#weaponsPanel h2 {
+    color: #8C52FF;
+    text-shadow: 0 0 10px #5D5FEF;
+}
+
+/* Estatísticas da Arma */
+.weapon-stats .stat {
+    background: rgba(10, 10, 10, 0.8);
+    border-left: 3px solid #FF4141;
+    padding: 8px;
+    margin: 5px 0;
+    color: #FFFFFF;
+}
+
+/* Botão de Upgrade */
+.upgrade-btn {
+    background: linear-gradient(to right, #5D5FEF, #8C52FF);
+    border: none;
+    color: #FFFFFF;
+    padding: 12px 24px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.upgrade-btn:hover {
+    box-shadow: 0 0 20px #8C52FF;
+    transform: scale(1.05);
+}
+
+.upgrade-btn:disabled {
+    background: #1B1B2F;
+    color: #5D5FEF;
+    cursor: not-allowed;
+}
+
+/* Material de Forja */
+.materials-grid div {
+    background: #0A0A0A;
+    border: 1px solid #5D5FEF;
+    padding: 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.materials-grid div:hover {
+    border-color: #FF4141;
+    box-shadow: 0 0 15px rgba(255, 65, 65, 0.3);
+}
+
+/* Adicione ao CSS */
+.inventory-slot .weapon-stats {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    font-size: 0.8em;
+    color: #8C52FF;
+    padding: 2px;
+    background: rgba(0,0,0,0.7);
+}
+
+.main-hand {
+    background: linear-gradient(45deg, #1B1B2F, #2A2A4A);
+    border: 2px solid #8C52FF;
+}
+
+.main-hand::after {
+    content: 'Arma Principal';
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #8C52FF;
+    font-size: 0.8em;
+}
