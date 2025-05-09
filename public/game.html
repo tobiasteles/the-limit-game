@@ -1,277 +1,150 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>The Limit - Jogo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Limit - MMORPG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/game.css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="game-container">
-        <button class="return-button" id="returnButton">
-            <img src="assets/icons/return.png" alt="Voltar">
-            Voltar à Seleção
-        </button>
-        <!-- Top Bar -->
-        <header class="top-bar">
-            <div class="player-status">
-                <div class="health-bar">
-                    <span>HP</span>
-                    <div class="bar">
-                        <div class="fill hp" style="width: 100%"></div>
-                    </div>
-                </div>
-                <div class="mana-bar">
-                    <span>MANA</span>
-                    <div class="bar">
-                        <div class="fill mana" style="width: 80%"></div>
-                    </div>
-                </div>
-                <div class="level-display">
-                    <span>Nível 1</span>
-                </div>
-            </div>
+    <div id="game-container">
+        <header id="game-header">
+            <!-- Logo ou título do jogo aqui -->
         </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Left Panel -->
-            <nav class="left-panel">
-                <button class="nav-btn home">
-                    <img src="assets/icons/home.png" alt="Casa">
-                    Casa
-                </button>
-                <button class="nav-btn weapon">
-                    <img src="assets/icons/sword.png" alt="Armas">
-                    Armas
-                </button>
-                <button class="nav-btn armor">
-                    <img src="assets/icons/shield.png" alt="Armaduras">
-                    Armaduras
-                </button>
-                <button class="nav-btn guild">
-                    <img src="assets/icons/guild.png" alt="Guilda">
-                    Guilda
-                </button>
-                <button class="nav-btn quests">
-                    <img src="assets/icons/quest.png" alt="Missões">
-                    Missões
-                </button>
-            </nav>
-
-            <!-- Character Area -->
-            <section class="character-area">
-                <div class="character-display">
-                    <img id="characterSprite" class="character-sprite" src="" alt="Personagem">
-                    <div class="character-info">
-                        <h2 id="characterName"></h2>
-                        <div class="stats">
-                            <div class="stat"><span>ATQ:</span> <span id="atkValue">0</span></div>
-                            <div class="stat"><span>DEF:</span> <span id="defValue">0</span></div>
-                        </div>
+        <main id="dashboard">
+            <aside id="sidebar">
+                <div id="character-display">
+                    <!-- Sprite animado do personagem -->
+                    <div id="character-sprite-container">
+                        <img src="#" alt="Sprite do Personagem" id="character-sprite">
+                        <div class="aura"></div>
                     </div>
+                    <div id="character-info-basic">
+                        <p>Nome: <span id="char-name">PlayerName</span></p>
+                        <p>Classe: <span id="char-class">Guerreiro</span></p>
+                    </div>
+                </div>
+                <div id="status-bars">
+                    <div class="status-bar" id="hp-bar-container">
+                        <label for="hp-bar">HP:</label>
+                        <div class="bar-background circuit-board-pattern">
+                            <div id="hp-bar" class="bar-fill"></div>
+                        </div>
+                        <span id="hp-value">100/100</span>
+                    </div>
+                    <div class="status-bar" id="mp-bar-container">
+                        <label for="mp-bar">MP:</label>
+                        <div class="bar-background circuit-board-pattern">
+                            <div id="mp-bar" class="bar-fill"></div>
+                        </div>
+                        <span id="mp-value">50/50</span>
+                    </div>
+                    <div class="status-bar" id="exp-bar-container">
+                        <label for="exp-bar">EXP:</label>
+                        <div class="bar-background circuit-board-pattern">
+                            <div id="exp-bar" class="bar-fill"></div>
+                        </div>
+                        <span id="exp-value">0/1000</span>
+                    </div>
+                </div>
+                <div id="character-stats">
+                    <p>Nível: <span id="char-level">1</span></p>
+                    <p>Ouro: <span id="char-gold">0</span></p>
+                    <h4>Atributos</h4>
+                    <ul id="attributes-list">
+                        <li>Força: <span id="attr-strength">10</span> <span class="rune-icon">💪</span></li>
+                        <li>Agilidade: <span id="attr-agility">10</span> <span class="rune-icon">🤸</span></li>
+                        <li>Inteligência: <span id="attr-intelligence">10</span> <span class="rune-icon">🧠</span></li>
+                        <li>Vitalidade: <span id="attr-vitality">10</span> <span class="rune-icon">❤️</span></li>
+                    </ul>
+                </div>
+                <nav id="action-buttons">
+                    <button class="action-btn hexagonal-border" data-section="geral">Geral</button>
+                    <button class="action-btn hexagonal-border" data-section="armeiro">Armeiro</button>
+                    <button class="action-btn hexagonal-border" data-section="armaduras">Armaduras</button>
+                    <button class="action-btn hexagonal-border" data-section="guild">Guild</button>
+                    <button class="action-btn hexagonal-border" data-section="inventario">Inventário</button>
+                    <button class="action-btn hexagonal-border" data-section="calabouco">Calabouço</button>
+                </nav>
+            </aside>
+
+            <section id="main-content">
+                <!-- Conteúdo dinâmico das seções aqui -->
+                <div class="section-panel active-section" id="geral-section">
+                    <h2>Geral</h2>
+                    <button id="test-delete-char-btn">Testar Deletar Personagem (Confirmação)</button>
+                    <button id="test-create-guild-btn">Testar Criar Guilda (Confirmação)</button> <!-- Botão de teste adicionado -->
+                    <!-- Conteúdo da seção Geral -->
+                </div>
+                <div class="section-panel" id="armeiro-section">
+                    <h2>Armeiro</h2>
+                    <!-- Conteúdo da seção Armeiro -->
+                </div>
+                <div class="section-panel" id="armaduras-section">
+                    <h2>Armaduras</h2>
+                    <!-- Conteúdo da seção Armaduras -->
+                </div>
+                <div class="section-panel" id="guild-section">
+                    <h2>Guild</h2>
+                    <div id="guild-chat-container">
+                        <div id="guild-chat-messages"></div>
+                        <input type="text" id="guild-chat-input" placeholder="Digite sua mensagem...">
+                        <button id="send-guild-message-btn" class="hexagonal-border small-btn">Enviar</button>
+                    </div>
+                    <button id="test-leave-guild-btn">Testar Sair da Guilda (Confirmação)</button>
+                    <!-- Conteúdo da seção Guild -->
+                </div>
+                <div class="section-panel" id="inventario-section">
+                    <h2>Inventário</h2>
+                    <div id="inventory-grid"></div>
+                    <!-- Conteúdo da seção Inventário -->
+                </div>
+                <div class="section-panel" id="calabouco-section">
+                    <h2>Calabouço</h2>
+                    <div id="battle-log-container">
+                        <div id="battle-log"></div>
+                    </div>
+                    <button id="start-normal-dungeon-btn">Iniciar Calabouço (Normal)</button>
+                    <!-- Conteúdo da seção Calabouço -->
                 </div>
             </section>
-
-            <!-- Right Panel -->
-            <nav class="right-panel">
-                <button class="nav-btn inventory">
-                    <img src="assets/icons/backpack.png" alt="Inventário">
-                    Inventário
-                </button>
-                <button class="nav-btn skills">
-                    <img src="assets/icons/skills.png" alt="Habilidades">
-                    Habilidades
-                </button>
-                <button class="nav-btn dungeon">
-                    <img src="assets/icons/dungeon.png" alt="Calabouços">
-                    Calabouços
-                </button>
-                <button class="nav-btn events">
-                    <img src="assets/icons/event.png" alt="Eventos">
-                    Eventos
-                </button>
-            </nav>
         </main>
 
-        <!-- Bottom Bar -->
-        <footer class="bottom-bar">
-            <div class="xp-bar">
-                <span>EXP</span>
-                <div class="bar">
-                    <div class="fill xp" style="width: 30%"></div>
-                </div>
-            </div>
+        <footer id="game-footer">
+            <!-- Informações adicionais ou chat global -->
         </footer>
-
-        <!-- Action Panels (hidden by default) -->
-        <section class="action-panel inventory-panel" id="inventoryPanel">
-            <div class="panel-header">
-                <h2>Inventário</h2>
-                <div class="gold-display">
-                    <img src="assets/icons/gold.png" alt="Gold">
-                    <span id="goldAmount">0</span>
-                </div>
-                <button class="close-btn" id="inventoryCloseBtn">&times;</button>
-            </div>
-            
-            <div class="inventory-content">
-                <!-- Coluna de Equipamentos -->
-                <div class="equipment-column">
-                    <div class="inventory-grid">
-                        <div class="inventory-slot head-slot" id="headSlot" data-label="Cabeça"></div>
-                        <div class="inventory-slot torso-slot" id="torsoSlot" data-label="Torso"></div>
-                        <div class="inventory-slot arms-slot" id="armsSlot" data-label="Braços"></div>
-                        <div class="inventory-slot legs-slot" id="legsSlot" data-label="Pernas"></div>
-                        <div class="inventory-slot main-hand" id="mainHandSlot" data-label="Mão Direita"></div>
-                        <div class="inventory-slot off-hand" id="offHandSlot" data-label="Mão Esquerda"></div>
-                    </div>
-                </div>
-        
-                <!-- Coluna de Itens -->
-                <div class="items-column">
-                    <h3>Itens Disponíveis</h3>
-                    <div class="items-list" id="itemsList">
-                        <!-- Itens serão inseridos aqui via JS -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Arsenal Panel -->
-        <section class="action-panel weapons-panel" id="weaponsPanel">
-            <div class="panel-header">
-                <h2>Arsenal</h2>
-                <button class="close-btn" id="weaponsCloseBtn">&times;</button>
-            </div>
-            
-            <div class="weapons-content">
-                <!-- Arma Atual -->
-                <div class="current-weapon">
-                    <h3>Equipado: <span id="currentWeaponName">Espada de Ferro</span></h3>
-                    <div class="weapon-stats">
-                        <div class="stat"><span>Nível:</span> <span id="weaponLevel">25</span></div>
-                        <div class="stat"><span>Material:</span> <span id="weaponMaterial">Ferro</span></div>
-                        <div class="stat"><span>ATQ:</span> <span id="weaponAtk">+15</span></div>
-                        <div class="stat"><span>DEF:</span> <span id="weaponDef">+5</span></div>
-                    </div>
-                </div>
-
-                <!-- Progressão de Melhoria -->
-                <div class="upgrade-path">
-                    <h4>Caminho de Forja</h4>
-                    <div class="materials-grid" id="materialsGrid">
-                        <!-- Gerado via JS -->
-                    </div>
-                </div>
-
-                <!-- Requisitos de Upgrade -->
-                <div class="upgrade-requirements">
-                    <h4>Próximo Nível</h4>
-                    <div class="requirement">
-                        <span>Ouro Necessário:</span>
-                        <span id="requiredGold">1,500</span>
-                        <img src="assets/icons/gold.png" alt="Ouro" width="20" height="20">
-                    </div>
-                    <button class="upgrade-btn" id="btnUpgrade">Forjar Melhoria</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Home Panel -->
-        <section class="action-panel home-panel" id="homePanel">
-            <div class="panel-header">
-                <h2>Geral</h2>
-                <button class="close-btn" id="homeCloseBtn">&times;</button>
-            </div>
-
-            <div class="home-content">
-                <div class="profile-section">
-                    <div class="character-summary">
-                        <img id="homeCharacterSprite" class="character-sprite" src="" alt="Personagem">
-                        <div class="character-meta">
-                            <h3 id="homeCharacterName"></h3>
-                            <p>Nível <span id="characterLevel">1</span></p>
-                            <div class="xp-bar mini">
-                                <span>EXP</span>
-                                <div class="bar">
-                                    <div class="fill xp" style="width: 30%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="quick-settings">
-                        <h4>Configurações Rápidas</h4>
-                        <button class="setting-btn audio-toggle">
-                            <img src="assets/icons/audio.png" alt="Áudio">
-                            Som: Ligado
-                        </button>
-                        <button class="setting-btn help-btn">
-                            <img src="assets/icons/help.png" alt="Ajuda">
-                            Tutorial
-                        </button>
-                    </div>
-                </div>
-
-                <div class="status-section">
-                    <div class="attributes-management">
-                        <h4>Atributos 
-                            <span class="points-remaining" id="pointsRemaining">0 pontos disponíveis</span>
-                        </h4>
-                        
-                        <div class="attribute-row">
-                            <span class="attr-name">Força</span>
-                            <div class="attr-controls">
-                                <span class="attr-value" id="strValue">0</span>
-                                <button class="attr-btn plus-btn" data-attr="str">+</button>
-                            </div>
-                        </div>
-
-                        <div class="attribute-row">
-                            <span class="attr-name">Inteligência</span>
-                            <div class="attr-controls">
-                                <span class="attr-value" id="intValue">0</span>
-                                <button class="attr-btn plus-btn" data-attr="int">+</button>
-                            </div>
-                        </div>
-
-                        <div class="attribute-row">
-                            <span class="attr-name">Velocidade</span>
-                            <div class="attr-controls">
-                                <span class="attr-value" id="spdValue">0</span>
-                                <button class="attr-btn plus-btn" data-attr="spd">+</button>
-                            </div>
-                        </div>
-
-                        <button class="save-btn" id="saveAttributes">Salvar Atributos</button>
-                    </div>
-
-                    <div class="compact-inventory">
-                        <h4>Inventário Rápido</h4>
-                        <div class="quick-slots" id="quickSlots">
-                            <!-- Itens serão adicionados via JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="action-panel" id="shopPanel"></section>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <div id="notifications-container">
+        <!-- Notificações flutuantes aqui -->
+    </div>
 
-    <!-- Configuração do Firebase DEVE vir primeiro -->
-    <script src="js/firebase/firebase-config.js"></script>
+    <!-- Modal de Confirmação -->
+    <div id="confirmation-modal-backdrop" class="modal-backdrop hidden">
+        <div id="confirmation-modal" class="modal-panel hexagonal-border-modal">
+            <h3 id="confirmation-title" class="text-glow-red">Ação Crítica</h3>
+            <p id="confirmation-message">Você tem certeza que deseja prosseguir com esta ação?</p>
+            <div class="confirmation-buttons">
+                <button id="confirm-action-btn" class="action-btn hexagonal-border">Confirmar</button>
+                <button id="cancel-action-btn" class="action-btn hexagonal-border cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Depois seus outros scripts -->
-    <script type="module" src="js/inventory.js"></script>
-    <script type="module" src="js/game/game.js"></script>
+    <!-- Scripts Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <!-- Configuração do Firebase -->
+    <script src="js/firebase/firebase-config.js"></script> 
+    
+    <!-- Lógica do Jogo -->
+    <script src="js/game/game.js"></script> 
 </body>
 </html>

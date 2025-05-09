@@ -1,718 +1,904 @@
-/* Reset e Fonte Base */
+/* Importações de Fontes */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@400;700&display=swap');
+
+/* Variáveis CSS */
+:root {
+    --color-black-deep: #0a0a0a;
+    --color-neon-blue: #00f3ff;
+    --color-neon-red: #ff003c;
+    --color-neon-purple: #8a2be2;
+    --color-neon-green-log: #00ff88;
+    --font-orbitron: 'Orbitron', sans-serif;
+    --font-exo2: 'Exo 2', sans-serif;
+}
+
+/* Reset Básico e Dark Mode Forçado */
+html {
+    filter: brightness(0.8);
+}
+
 body {
+    font-family: var(--font-exo2);
+    background-color: var(--color-black-deep);
+    color: #e0e0e0; /* Cor de texto base mais clara para contraste */
     margin: 0;
     padding: 0;
-    background-color: #0A0A0A;
-    color: #FFFFFF;
-    font-family: 'Bebas Neue', cursive;
-    height: 100vh;
-}
-
-/* Contêiner Principal */
-.game-container {
+    overflow-x: hidden; /* Evitar scroll horizontal */
+    line-height: 1.6;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
-    padding: 10px;
-    background-color: #0A0A0A;
-    position: relative;
+    position: relative; /* Para o overlay de scanlines */
 }
 
-/* Topo */
-.top-bar {
-    background: #1B1B2F;
-    padding: 10px;
-    border-bottom: 2px solid #5D5FEF;
-}
-
-.player-status {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-/* Barras */
-.bar {
-    width: 200px;
-    height: 20px;
-    background: #0A0A0A;
-    border: 2px solid #5D5FEF;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.fill {
-    height: 100%;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px #8C52FF;
-}
-
-.hp { background-color: #FF4141; }
-.mana { background-color: #5D5FEF; }
-.xp { background-color: #8C52FF; }
-
-.level-display {
-    color: #8C52FF;
-    font-size: 1.5rem;
-}
-
-/* Área Principal */
-.main-content {
-    flex: 1;
-    display: flex;
-    gap: 20px;
-    padding: 20px 0;
-}
-
-.left-panel, .right-panel {
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background: #1B1B2F;
-    padding: 20px;
-    border: 2px solid #5D5FEF;
-    border-radius: 10px;
-}
-
-/* Botões */
-.nav-btn,
-.return-button,
-.save-btn,
-.plus-btn,
-.setting-btn {
-    background: #1B1B2F;
-    color: #FFFFFF;
-    border: 2px solid #5D5FEF;
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-radius: 8px;
-}
-
-.nav-btn:hover,
-.return-button:hover,
-.save-btn:hover,
-.plus-btn:hover,
-.setting-btn:hover {
-    background: #5D5FEF;
-    box-shadow: 0 0 15px #8C52FF;
-    transform: translateX(5px);
-}
-
-.return-button {
+body::before { /* Overlay de Scanlines */
+    content: '';
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #FF4141;
-    z-index: 1001;
-}
-
-.return-button:hover {
-    background: #8C52FF;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
-}
-
-.return-button img,
-.nav-btn img {
-    width: 24px;
-    height: 24px;
-}
-
-/* Área do Personagem */
-.character-area {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.character-display {
-    text-align: center;
-    padding: 20px;
-    background: #1B1B2F;
-    border: 2px solid #8C52FF;
-    border-radius: 10px;
-}
-
-.character-sprite {
-    width: 300px;
-    height: 300px;
-    image-rendering: pixelated;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.stats {
-    display: flex;
-    gap: 30px;
-    justify-content: center;
-}
-
-.stat {
-    font-size: 1.2rem;
-    color: #8C52FF;
-}
-
-.stat span:first-child {
-    color: #FFFFFF;
-}
-
-/* Action Panels Genéricos */
-.action-panel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #1B1B2F;
-    padding: 30px;
-    border: 3px solid #5D5FEF;
-    box-shadow: 0 0 30px #8C52FF;
-    border-radius: 10px;
-    display: none;
-    width: 80%;
-    max-width: 600px;
-}
-
-.panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #5D5FEF;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: #FF4141;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
-    transition: all 0.3s ease;
-}
-
-.close-btn:hover {
-    color: #8C52FF;
-    transform: scale(1.2);
-}
-
-/* Mensagem de Erro */
-.global-error {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #FF4141;
-    color: white;
-    padding: 15px 30px;
-    border-radius: 5px;
-    font-family: 'Bebas Neue', cursive;
-    z-index: 9999;
-}
-
-/* Inventário Geral */
-.inventory-panel {
-    width: 600px;
-    padding: 20px;
-}
-
-.inventory-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.inventory-slot {
-    position: relative;
-    background: #1B1B2F;
-    border: 2px solid #5D5FEF;
-    border-radius: 8px;
-    min-height: 100px;
-    padding: 10px;
-    text-align: center;
-}
-
-.inventory-slot img {
-    width: 64px;
-    height: 64px;
-    image-rendering: pixelated;
-}
-
-.slot-label {
-    color: #5D5FEF;
-    font-size: 0.8em;
-    position: absolute;
-    bottom: 5px;
+    top: 0;
     left: 0;
-    right: 0;
-}
-
-.default-item {
-    width: 50px;
-    height: 50px;
-    opacity: 0.3;
-}
-
-#inventoryCloseBtn {
-    background: none;
-    border: none;
-    color: #FF4141;
-    font-size: 2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#inventoryCloseBtn:hover {
-    color: #8C52FF;
-    transform: rotate(90deg);
-}
-
-/* Layout Inventário Detalhado */
-.inventory-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.gold-display {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #FFD700;
-    font-weight: bold;
-}
-
-.gold-display img {
-    width: 24px;
-    height: 24px;
-}
-
-.items-column {
-    background: #1B1B2F;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #5D5FEF;
-}
-
-.items-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.item-card {
-    background: #2A2A4A;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #8C52FF;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.item-card:hover {
-    transform: translateY(-3px);
-    background: #3A3A5A;
-}
-
-.item-card img {
-    width: 40px;
-    height: 40px;
-    display: block;
-    margin: 0 auto;
-}
-
-.item-info {
-    margin-top: 8px;
-    text-align: center;
-}
-
-.item-name {
-    color: #FFFFFF;
-    font-size: 0.9em;
-}
-
-.item-quantity {
-    color: #5D5FEF;
-    font-size: 0.8em;
-}
-
-/* Layout específico dos slots */
-.head-slot { grid-column: 2; }
-.torso-slot { grid-column: 2; grid-row: 2; }
-.arms-slot { grid-column: 1; grid-row: 2; }
-.legs-slot { grid-column: 3; grid-row: 2; }
-.main-hand { grid-column: 1; grid-row: 3; }
-.off-hand { grid-column: 3; grid-row: 3; }
-
-/* Painel da Casa (Home Panel) */
-.home-panel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #1B1B2F;
-    border: 3px solid #5D5FEF;
-    box-shadow: 0 0 30px rgba(140, 82, 255, 0.3);
-    border-radius: 15px;
-    width: 600px;
-    max-height: 80vh;
-    padding: 25px;
-    z-index: 1000;
-    display: none;
-}
-
-.home-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    width: 100%;
     height: 100%;
+    background-image: repeating-linear-gradient(
+        transparent,
+        transparent 2px,
+        rgba(0, 243, 255, 0.03) 2px,
+        rgba(0, 243, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 9999; /* Sobre tudo */
+    opacity: 0.5; /* Ajustado para ser mais sutil */
 }
 
-/* Seção do Perfil */
-.profile-section {
+/* Efeito de Glow em Textos Importantes */
+.text-glow {
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.7), 0 0 12px rgba(0, 243, 255, 0.5);
+}
+
+.text-glow-red {
+    text-shadow: 0 0 8px rgba(255, 0, 60, 0.7), 0 0 12px rgba(255, 0, 60, 0.5);
+}
+
+.text-glow-purple {
+    text-shadow: 0 0 8px rgba(138, 43, 226, 0.7), 0 0 12px rgba(138, 43, 226, 0.5);
+}
+
+/* Container Principal do Jogo */
+#game-container {
+    width: 95%;
+    max-width: 1600px; /* Limite máximo para telas grandes */
+    height: 90vh; /* Altura baseada na viewport */
+    max-height: 900px;
+    background: rgba(10, 10, 10, 0.8); /* Fundo com leve transparência */
+    border: 2px solid var(--color-neon-blue);
+    box-shadow: 0 0 25px var(--color-neon-blue), inset 0 0 15px rgba(0, 243, 255, 0.3);
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding-right: 20px;
-    border-right: 2px solid #5D5FEF;
+    position: relative;
+    overflow: hidden; /* Para conter elementos animados */
+    backdrop-filter: blur(3px); /* Efeito de vidro fosco */
 }
 
-.character-summary {
+/* Cabeçalho (se necessário) */
+#game-header {
+    padding: 10px 20px;
+    text-align: center;
+    font-family: var(--font-orbitron);
+    font-size: 1.8em;
+    color: var(--color-neon-blue);
+    border-bottom: 1px solid var(--color-neon-blue);
+    text-shadow: 0 0 10px var(--color-neon-blue);
+}
+
+/* Dashboard Principal */
+#dashboard {
     display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
+    flex-grow: 1;
+    overflow: hidden; /* Para scroll interno das seções */
 }
 
-.character-summary .character-sprite {
+/* Sidebar (Painel Esquerdo) */
+#sidebar {
+    width: 300px;
+    min-width: 280px;
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.7) 0%, rgba(138, 43, 226, 0.1) 100%);
+    padding: 20px;
+    border-right: 2px solid var(--color-neon-purple);
+    box-shadow: 5px 0 15px rgba(138, 43, 226, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto; /* Scroll se conteúdo exceder */
+    position: relative; /* Para elementos ::before/::after */
+}
+
+#sidebar::before { /* Efeito holográfico de linhas diagonais */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(138, 43, 226, 0.08) 10px,
+        rgba(138, 43, 226, 0.08) 12px
+    );
+    animation: holographic-lines 20s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes holographic-lines {
+    0% { background-position: 0 0; }
+    100% { background-position: 100px 100px; }
+}
+
+/* Display do Personagem */
+#character-display {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid var(--color-neon-blue);
+    background: rgba(0, 243, 255, 0.05);
+    margin-bottom: 15px;
+    perspective: 1000px; /* Para efeito 3D na moldura */
+}
+
+#character-sprite-container {
     width: 100px;
     height: 100px;
-    border: 2px solid #8C52FF;
-    border-radius: 10px;
-    object-fit: cover;
-}
-
-.character-meta h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #8C52FF;
-    letter-spacing: 1px;
-}
-
-.xp-bar.mini {
-    margin-top: 10px;
-}
-
-.xp-bar.mini .bar {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* Configurações Rápidas */
-.quick-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.setting-btn {
-    background: #0A0A0A;
-    border: 1px solid #5D5FEF;
-    padding: 12px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.2s ease;
-}
-
-.setting-btn:hover {
-    background: #5D5FEF;
-    transform: translateX(5px);
-}
-
-.setting-btn img {
-    width: 24px;
-    filter: drop-shadow(0 0 2px #8C52FF);
-}
-
-/* Seção de Atributos */
-.status-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.attributes-management {
-    background: #0A0A0A;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #5D5FEF;
-}
-
-.attributes-management h4 {
-    color: #8C52FF;
-    margin: 0 0 15px;
-    font-size: 1.3rem;
-}
-
-.points-remaining {
-    color: #FF4141;
-    font-size: 0.9rem;
-    display: block;
-    margin-top: 5px;
-}
-
-.attribute-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 8px;
-    background: #1B1B2F;
-    border-radius: 6px;
-}
-
-.attr-name {
-    color: #FFFFFF;
-    font-size: 1.1rem;
-}
-
-.attr-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.attr-value {
-    color: #5D5FEF;
-    font-size: 1.2rem;
-    min-width: 30px;
-    text-align: center;
-}
-
-.plus-btn {
-    background: #5D5FEF;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.plus-btn:hover {
-    background: #8C52FF;
-    transform: scale(1.1);
-}
-
-/* Inventário Rápido dentro do Home */
-.compact-inventory {
-    margin-top: auto;
-}
-
-.quick-slots {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-}
-
-.quick-slot {
-    background: #1B1B2F;
-    border: 1px solid #5D5FEF;
-    border-radius: 8px;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0 auto 10px auto;
     position: relative;
+    border: 2px solid var(--color-neon-blue);
+    transform-style: preserve-3d;
+    transform: rotateY(5deg) rotateX(2deg); /* Leve perspectiva */
+    box-shadow: 0 0 15px var(--color-neon-blue);
 }
 
-.quick-slot img {
-    width: 80%;
-    height: 80%;
+#character-sprite {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
 }
 
-.item-count, .quick-slot .item-count {
+.aura {
     position: absolute;
-    bottom: 3px;
-    right: 3px;
-    background: #FF4141;
-    color: white;
-    font-size: 0.8rem;
-    padding: 2px 5px;
-    border-radius: 3px;
+    top: -10px; left: -10px; right: -10px; bottom: -10px;
+    border: 2px solid var(--color-neon-purple);
+    border-radius: 50%;
+    animation: rotation-glow 5s linear infinite, pulse-aura 2s infinite alternate;
+    opacity: 0.7;
 }
 
-/* Botão Salvar */
-.save-btn {
+@keyframes rotation-glow {
+    0% { transform: rotate(0deg); box-shadow: 0 0 10px var(--color-neon-purple); }
+    50% { box-shadow: 0 0 20px var(--color-neon-purple), 0 0 30px var(--color-neon-purple); }
+    100% { transform: rotate(360deg); box-shadow: 0 0 10px var(--color-neon-purple); }
+}
+
+@keyframes pulse-aura {
+    from { opacity: 0.5; transform: scale(1); }
+    to { opacity: 0.8; transform: scale(1.1); }
+}
+
+#character-info-basic p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: var(--color-neon-blue);
+}
+
+#character-info-basic span {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Barras de Status (HP/MP/EXP) */
+#status-bars .status-bar {
+    margin-bottom: 10px;
+}
+
+#status-bars label {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.9em;
+    color: var(--color-neon-blue);
+    font-family: var(--font-orbitron);
+}
+
+.bar-background {
     width: 100%;
-    background: #8C52FF;
-    color: white;
-    border: none;
-    padding: 12px;
-    margin-top: 15px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.save-btn:hover {
-    background: #5D5FEF;
-    letter-spacing: 1px;
-}
-
-/* Estilo Base do Botão de Armas */
-.nav-btn.weapon {
-    background-color: #0A0A0A;
-    border: 2px solid #5D5FEF;
-    border-radius: 8px;
-    padding: 12px;
-    margin: 8px 0;
-    color: #FFFFFF;
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--color-neon-blue);
+    border-radius: 3px;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
 }
 
-/* Efeito de Brilho Mágico no Hover */
-.nav-btn.weapon:hover {
-    border-color: #8C52FF;
-    box-shadow: 0 0 15px #5D5FEF,
-                inset 0 0 10px rgba(93, 95, 239, 0.3);
+.circuit-board-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 200%; height: 100%;
+    background-image: repeating-linear-gradient(
+        -45deg,
+        transparent, transparent 1px,
+        rgba(0, 243, 255, 0.2) 1px, rgba(0, 243, 255, 0.2) 2px
+    );
+    animation: pulse-circuit 3s linear infinite;
+    opacity: 0.5;
+}
+
+@keyframes pulse-circuit {
+    0% { background-position: 0 0; opacity: 0.3; }
+    50% { opacity: 0.7; }
+    100% { background-position: -50px -50px; opacity: 0.3; }
+}
+
+.bar-fill {
+    height: 100%;
+    transition: width 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    border-radius: 2px;
+}
+
+#hp-bar {
+    background: linear-gradient(90deg, var(--color-neon-red) 0%, #ff5577 100%);
+    width: 100%; /* Exemplo */
+}
+
+#mp-bar {
+    background: linear-gradient(90deg, var(--color-neon-blue) 0%, #55ccff 100%);
+    width: 100%; /* Exemplo */
+}
+
+#exp-bar {
+    background: linear-gradient(90deg, var(--color-neon-purple) 0%, #aa66ff 100%);
+    width: 0%; /* Exemplo */
+}
+
+.status-bar span {
+    display: block;
+    text-align: right;
+    font-size: 0.8em;
+    color: #ccc;
+    margin-top: 2px;
+}
+
+/* Informações do Personagem (Nível/Ouro/Atributos) */
+#character-stats {
+    padding: 10px;
+    border: 1px solid var(--color-neon-purple);
+    background: rgba(138, 43, 226, 0.05);
+}
+
+#character-stats p {
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+#character-stats h4 {
+    font-family: var(--font-orbitron);
+    color: var(--color-neon-purple);
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+    text-align: center;
+    text-shadow: 0 0 6px var(--color-neon-purple);
+}
+
+#attributes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#attributes-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 0.9em;
+}
+
+.rune-icon {
+    font-size: 1.2em;
+    color: var(--color-neon-purple);
+    text-shadow: 0 0 5px var(--color-neon-purple);
+}
+
+/* Botões de Ação */
+#action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto; /* Empurra para o final da sidebar */
+}
+
+.action-btn {
+    font-family: var(--font-orbitron);
+    font-size: 1em;
+    color: var(--color-neon-blue);
+    background-color: transparent;
+    border: 2px solid var(--color-neon-blue);
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); /* Borda hexagonal simples */
+    text-transform: uppercase;
+}
+
+.action-btn::before { /* Efeito de energia pulsante */
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(0, 243, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+}
+
+.action-btn:hover::before, .action-btn:focus::before {
+    width: 250%; /* Aumenta para cobrir o botão */
+    height: 250%;
+    opacity: 1;
+}
+
+.action-btn:hover, .action-btn:focus {
+    color: var(--color-black-deep);
+    background-color: var(--color-neon-blue);
+    box-shadow: 0 0 15px var(--color-neon-blue), 0 0 25px var(--color-neon-blue);
     transform: translateY(-2px);
 }
 
-/* Efeito de Pressão */
-.nav-btn.weapon:active {
-    transform: translateY(1px);
-    box-shadow: 0 0 8px #5D5FEF;
+.action-btn.active-btn {
+    background-color: var(--color-neon-blue);
+    color: var(--color-black-deep);
+    box-shadow: 0 0 20px var(--color-neon-blue), inset 0 0 10px rgba(0,0,0,0.5);
 }
 
-/* Ícone da Arma */
-.nav-btn.weapon img {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 0 5px #5D5FEF);
-    transition: all 0.3s ease;
+/* Conteúdo Principal das Seções */
+#main-content {
+    flex-grow: 1;
+    padding: 25px;
+    position: relative; /* Para transições e overlays */
+    overflow-y: auto; /* Scroll para conteúdo da seção */
+    background: linear-gradient(45deg, rgba(10,10,10,0.6) 0%, rgba(0, 243, 255, 0.05) 100%);
 }
 
-/* Animação do Ícone no Hover */
-.nav-btn.weapon:hover img {
-    filter: drop-shadow(0 0 8px #8C52FF) brightness(1.2);
-    transform: scale(1.1) rotate(-5deg);
-}
-
-/* Efeito de Destaque Ativo */
-.nav-btn.weapon.active {
-    background: linear-gradient(45deg, #0A0A0A 50%, #1B1B2F 100%);
-    border-color: #FF4141;
-    box-shadow: 0 0 20px rgba(255, 65, 65, 0.5);
-}
-
-/* Painel de Armas */
-#weaponsPanel {
-    background: #1B1B2F;
-    border: 2px solid #5D5FEF;
-    box-shadow: 0 0 30px rgba(93, 95, 239, 0.4);
-}
-
-/* Título do Painel */
-#weaponsPanel h2 {
-    color: #8C52FF;
-    text-shadow: 0 0 10px #5D5FEF;
-}
-
-/* Estatísticas da Arma */
-.weapon-stats .stat {
-    background: rgba(10, 10, 10, 0.8);
-    border-left: 3px solid #FF4141;
-    padding: 8px;
-    margin: 5px 0;
-    color: #FFFFFF;
-}
-
-/* Botão de Upgrade */
-.upgrade-btn {
-    background: linear-gradient(to right, #5D5FEF, #8C52FF);
-    border: none;
-    color: #FFFFFF;
-    padding: 12px 24px;
-    border-radius: 5px;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-}
-
-.upgrade-btn:hover {
-    box-shadow: 0 0 20px #8C52FF;
-    transform: scale(1.05);
-}
-
-.upgrade-btn:disabled {
-    background: #1B1B2F;
-    color: #5D5FEF;
-    cursor: not-allowed;
-}
-
-/* Material de Forja */
-.materials-grid div {
-    background: #0A0A0A;
-    border: 1px solid #5D5FEF;
-    padding: 10px;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
-
-.materials-grid div:hover {
-    border-color: #FF4141;
-    box-shadow: 0 0 15px rgba(255, 65, 65, 0.3);
-}
-
-/* Adicione ao CSS */
-.inventory-slot .weapon-stats {
+#main-content::before { /* Chuva de dados - simplificado */
+    content: '';
     position: absolute;
-    bottom: 5px;
-    left: 0;
-    right: 0;
-    font-size: 0.8em;
-    color: #8C52FF;
-    padding: 2px;
-    background: rgba(0,0,0,0.7);
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><text x="0" y="15" font-size="10" fill="rgba(0,243,255,0.1)">01</text><text x="20" y="35" font-size="10" fill="rgba(0,243,255,0.05)">10</text></svg>');
+    animation: data-rain 10s linear infinite;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: -1;
 }
 
-.main-hand {
-    background: linear-gradient(45deg, #1B1B2F, #2A2A4A);
-    border: 2px solid #8C52FF;
+@keyframes data-rain {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 500px; }
 }
 
-.main-hand::after {
-    content: 'Arma Principal';
-    position: absolute;
-    bottom: -25px;
-    left: 0;
-    right: 0;
+.section-panel {
+    display: none; /* Escondido por padrão */
+    animation: fadeInSection 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    padding: 20px;
+    border: 1px solid var(--color-neon-blue);
+    background: rgba(10,10,10,0.7);
+    box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
+.section-panel.active-section {
+    display: block;
+}
+
+@keyframes fadeInSection {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+        filter: contrast(150%) brightness(70%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: contrast(100%) brightness(100%);
+    }
+}
+
+.section-panel h2 {
+    font-family: var(--font-orbitron);
+    color: var(--color-neon-blue);
     text-align: center;
-    color: #8C52FF;
-    font-size: 0.8em;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    text-shadow: 0 0 8px var(--color-neon-blue);
 }
+
+/* Estilos específicos para seções (placeholder) */
+/* Seção Geral */
+#geral-section .status-details p, #geral-section .active-equipment p {
+    color: #c0c0c0;
+    border-bottom: 1px dashed rgba(0, 243, 255, 0.2);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+#geral-section .status-details strong, #geral-section .active-equipment strong {
+    color: var(--color-neon-blue);
+}
+
+/* Lojas (Armeiro/Armaduras) */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.shop-item {
+    border: 1px solid var(--color-neon-purple);
+    padding: 15px;
+    background: rgba(138, 43, 226, 0.1);
+    text-align: center;
+    position: relative;
+    overflow: hidden; /* Para fumaça */
+}
+
+.shop-item::before { /* Efeito de fumaça estática */
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 0; width: 100%; height: 50px;
+    background: radial-gradient(ellipse at bottom, rgba(138, 43, 226, 0.2) 0%, transparent 70%);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.shop-item img {
+    max-width: 80px;
+    height: auto;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 5px var(--color-neon-purple));
+}
+
+.shop-item h4 {
+    font-family: var(--font-orbitron);
+    color: var(--color-neon-purple);
+    margin: 5px 0;
+}
+
+.item-rarity-common { border-left: 5px solid #ffffff; }
+.item-rarity-rare { border-left: 5px solid #0070dd; }
+.item-rarity-epic { border-left: 5px solid #a335ee; }
+.item-rarity-legendary { border-left: 5px solid #ff8000; }
+
+/* Inventário */
+#inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--color-neon-blue);
+    min-height: 200px; /* Para área de drop */
+}
+
+.inventory-slot {
+    width: 75px;
+    height: 75px;
+    background-color: rgba(0, 243, 255, 0.1);
+    border: 1px dashed var(--color-neon-blue);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+}
+
+.inventory-slot img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+/* Calabouço - Log de Batalha */
+#battle-log {
+    height: 200px;
+    background-color: rgba(0, 10, 0, 0.8);
+    border: 1px solid var(--color-neon-green-log);
+    padding: 10px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace; /* Fonte de terminal */
+    color: var(--color-neon-green-log);
+    text-shadow: 0 0 5px var(--color-neon-green-log);
+}
+
+#battle-log p {
+    margin: 2px 0;
+    font-size: 0.9em;
+}
+
+/* Notificações Flutuantes */
+#notifications-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column-reverse; /* Novas notificações no topo */
+    gap: 10px;
+}
+
+.notification-popup {
+    padding: 15px 25px;
+    background: linear-gradient(135deg, var(--color-neon-blue), var(--color-neon-purple));
+    color: var(--color-black-deep);
+    border: 2px solid var(--color-black-deep);
+    box-shadow: 0 0 15px var(--color-neon-blue), 0 0 25px var(--color-neon-purple);
+    font-family: var(--font-orbitron);
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    animation: slideInNotification 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, fadeOutNotification 0.5s 4.5s forwards;
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+@keyframes slideInNotification {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOutNotification {
+    to {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+}
+
+/* Footer (se necessário) */
+#game-footer {
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid var(--color-neon-purple);
+    font-size: 0.8em;
+    color: var(--color-neon-purple);
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    #sidebar {
+        width: 250px;
+        min-width: 220px;
+    }
+    .action-btn { font-size: 0.9em; padding: 10px 8px; }
+}
+
+@media (max-width: 992px) {
+    #game-container {
+        width: 100%;
+        height: 100vh;
+        max-height: none;
+        border: none;
+        box-shadow: none;
+    }
+    #dashboard {
+        flex-direction: column;
+    }
+    #sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid var(--color-neon-purple);
+        flex-direction: row; /* Muda para horizontal em telas menores */
+        overflow-x: auto; /* Permite scroll horizontal dos itens da sidebar */
+        overflow-y: hidden;
+        padding: 10px;
+        align-items: center; /* Centraliza itens na horizontal */
+    }
+    #character-display, #status-bars, #character-stats {
+        flex: 0 0 auto; /* Não cresce, não encolhe, baseia-se no conteúdo */
+        margin-bottom: 0;
+        margin-right: 15px; /* Espaçamento entre os blocos */
+    }
+    #character-display {
+        min-width: 150px;
+    }
+    #status-bars {
+        min-width: 180px;
+    }
+    #character-stats {
+        min-width: 180px;
+    }
+    #action-buttons {
+        flex-direction: row; /* Botões em linha */
+        margin-top: 0;
+        margin-left: auto; /* Empurra para a direita */
+        gap: 8px;
+    }
+    .action-btn {
+        clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%); /* Hexágono mais simétrico para botões menores */
+        padding: 8px 12px;
+    }
+    #main-content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        padding: 10px 5px; /* Menos padding lateral */
+        /* Forçar scroll se muitos itens */
+        justify-content: flex-start; /* Alinha itens ao início para scroll */
+    }
+    #character-display {
+        display: none; /* Ocultar display de personagem para economizar espaço */
+    }
+    #status-bars, #character-stats {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    .bar-background { height: 18px; }
+    #action-buttons {
+        width: 100%;
+        justify-content: space-around; /* Distribui botões */
+        margin-left: 0;
+        margin-top: 10px; /* Espaço acima se quebrar linha */
+    }
+    .action-btn { font-size: 0.8em; padding: 8px 5px; }
+    .section-panel h2 { font-size: 1.5em; }
+}
+
+@media (max-width: 480px) {
+    #status-bars, #character-stats {
+        min-width: 150px;
+    }
+    #attributes-list li { font-size: 0.8em; }
+    .rune-icon { font-size: 1em; }
+    .action-btn {
+        font-size: 0.7em;
+        padding: 6px 4px;
+        clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
+    }
+    #notifications-container {
+        bottom: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+    }
+    .notification-popup {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Efeitos de priorização visual (Classes a serem adicionadas via JS) */
+.hp-critical-effect {
+    animation: screen-distortion 0.5s infinite alternate, red-pulse 0.3s infinite alternate;
+}
+
+@keyframes screen-distortion {
+    0% { filter: contrast(110%) brightness(90%) hue-rotate(0deg); }
+    100% { filter: contrast(130%) brightness(80%) hue-rotate(10deg); }
+}
+
+@keyframes red-pulse {
+    from { box-shadow: 0 0 30px var(--color-neon-red), inset 0 0 20px rgba(255,0,60,0.5); }
+    to { box-shadow: 0 0 40px var(--color-neon-red), inset 0 0 30px rgba(255,0,60,0.7); }
+}
+
+.new-item-glow {
+    position: relative;
+}
+
+.new-item-glow::after { /* Brilho pulsante dourado */
+    content: '';
+    position: absolute;
+    top: -5px; left: -5px; right: -5px; bottom: -5px;
+    border: 2px solid #ffd700; /* Dourado */
+    border-radius: 5px;
+    animation: pulse-gold 1.5s infinite alternate;
+    box-shadow: 0 0 10px #ffd700, 0 0 15px #ffd700;
+    pointer-events: none;
+}
+
+@keyframes pulse-gold {
+    from { opacity: 0.6; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.05); }
+}
+
+/* Partículas (requer JS para criar e animar elementos de partícula) */
+.level-up-effect-container {
+    position: fixed; /* Ou absoluto no elemento do personagem */
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px; height: 200px;
+    pointer-events: none;
+    z-index: 10001;
+}
+
+.particle {
+    position: absolute;
+    background-color: var(--color-neon-blue);
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    opacity: 0;
+    /* Animação será controlada por JS */
+}
+
+/* Efeito de onda de choque (pode ser um ::after no container do personagem) */
+.shockwave-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 10px; height: 10px;
+    background: transparent;
+    border: 2px solid var(--color-neon-blue);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+    animation: shockwave 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes shockwave {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+}
+
+/* Animação de dano "vidro quebrando" (aplicar a um overlay) */
+.damage-glass-break {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    backdrop-filter: blur(2px) contrast(150%);
+    animation: glass-break-anim 0.3s forwards;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0;
+}
+
+@keyframes glass-break-anim {
+    0% { opacity: 0; transform: scale(1.1); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1); }
+}
+
+
+/* ... (código CSS anterior) ... */
+
+/* Modal de Confirmação */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Fundo mais escuro para focar no modal */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Acima de tudo, exceto talvez notificações de altíssima prioridade */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.modal-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-panel {
+    background: linear-gradient(145deg, var(--color-black-deep) 0%, rgba(var(--color-neon-purple-rgb), 0.2) 100%); /* Usar RGB para transparência */
+    padding: 30px 40px;
+    border-radius: 5px; /* Bordas levemente arredondadas para suavizar o hexagonal */
+    box-shadow: 0 0 30px var(--color-neon-purple), inset 0 0 20px rgba(var(--color-neon-purple-rgb), 0.4);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.modal-backdrop.visible .modal-panel {
+    transform: scale(1);
+}
+
+/* Borda Hexagonal para Modal (usando clip-path) */
+.hexagonal-border-modal {
+    clip-path: polygon(
+        5% 0%, 95% 0%,
+        100% 5%, 100% 95%,
+        95% 100%, 5% 100%,
+        0% 95%, 0% 5%
+    );
+    border: 2px solid var(--color-neon-purple);
+}
+
+.modal-panel h3 {
+    font-family: var(--font-orbitron);
+    color: var(--color-neon-red); /* Destaque para ações críticas */
+    font-size: 1.6em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px var(--color-neon-red);
+}
+
+.modal-panel p {
+    font-size: 1.1em;
+    color: #e0e0e0;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: space-around; /* Ou center com gap */
+    gap: 20px;
+}
+
+.confirmation-buttons .action-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    min-width: 120px;
+}
+
+.confirmation-buttons .cancel-btn {
+    background-color: transparent;
+    border-color: #aaa; /* Cinza para cancelamento */
+    color: #aaa;
+}
+
+.confirmation-buttons .cancel-btn:hover,
+.confirmation-buttons .cancel-btn:focus {
+    background-color: #aaa;
+    color: var(--color-black-deep);
+    box-shadow: 0 0 15px #aaa;
+}
+
+/* Adicionar ao final do style.css, garantindo que as variáveis de cor RGB sejam definidas se não existirem */
+:root {
+    /* ... (outras variáveis) ... */
+    --color-neon-purple-rgb: 138, 43, 226; /* Roxo energizado em RGB para rgba() */
+}
+
+/* Adicionar classe para o item sendo arrastado no inventário */
+.inventory-item-display.dragging {
+    opacity: 0.5;
+    border: 2px dashed var(--color-neon-blue);
+}
+
+/* Adicionar classe para slot de inventário quando um item está sobre ele */
+.inventory-slot.drag-over {
+    background-color: rgba(0, 243, 255, 0.2);
+    border-style: solid;
+}
+
+/* Pequeno ajuste para botões hexagonais menores se necessário */
+.action-btn.small-btn {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+}
+
+/* Estilo para notificações baseadas no tipo */
+.notification-popup.notification-success {
+    background: linear-gradient(135deg, #28a745, #20c997); /* Verde */
+    box-shadow: 0 0 15px #28a745, 0 0 25px #20c997;
+}
+
+.notification-popup.notification-error {
+    background: linear-gradient(135deg, var(--color-neon-red), #dc3545); /* Vermelho */
+    box-shadow: 0 0 15px var(--color-neon-red), 0 0 25px #dc3545;
+}
+
+.notification-popup.notification-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14); /* Amarelo/Laranja */
+    box-shadow: 0 0 15px #ffc107, 0 0 25px #fd7e14;
+}
+
+/* ... (restante do CSS) ... */
+
