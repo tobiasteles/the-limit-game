@@ -1,11 +1,5 @@
-import { updateGeralSection } from 'js/game/game-geral.js'; // Certifique-se de que este arquivo existe e contém a função
-import { renderInventory } from './game-inventory.js'; // Certifique-se de que este arquivo existe e contém a função
-import { populateArmeiroShop } from './game-armory.js'; // Certifique-se de que este arquivo existe e contém a função
-import { populateArmadurasShop } from './game-armor-shop.js'; // Certifique-se de que este arquivo existe e contém a função
-import { populateGuildSection } from './game-guild.js'; // Certifique-se de que este arquivo existe e contém a função
-
 // game-main.js: Lógica central, inicialização, e funções de utilidade
-// Importações adicionais, se necessário
+
 // Variáveis globais que podem precisar ser acessadas por outros módulos.
 let db, rtdb, auth, currentUserId, authUnsubscribe, playerCharacterUnsubscribe;
 let guildChatUnsubscribe, guildMembersUnsubscribe;
@@ -16,7 +10,7 @@ let playerState = {};
 let WEAPON_CATALOG_DATA = [];
 let ARMOR_CATALOG_DATA = [];
 let MONSTER_CATALOG_DATA = [];
-let combatState = {};
+// combatState será definido e gerenciado em game-dungeon.js, mas pode ser referenciado aqui se necessário.
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("game-main.js: DOM Carregado. Inicializando o jogo...");
@@ -46,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
         attrIntelligence: document.getElementById("attr-intelligence"),
         attrVitality: document.getElementById("attr-vitality"),
         characterSprite: document.getElementById("character-sprite"),
-        // Seções principais de conteúdo
         mainContent: document.getElementById("main-content"),
         geralSection: document.getElementById("geral-section"),
         armeiroSection: document.getElementById("armeiro-section"),
@@ -54,16 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
         guildSection: document.getElementById("guild-section"),
         inventarioSection: document.getElementById("inventario-section"),
         calaboucoSection: document.getElementById("calabouco-section"),
-        // Elementos específicos das seções (alguns já aqui, outros nos módulos)
-        geralStatusCompleto: document.getElementById("geral-status-completo"), // Se existir no HTML
-        geralEquipamentosAtivos: document.getElementById("geral-equipamentos-ativos"), // Se existir no HTML
-        descansarBtn: document.getElementById("descansar-btn"), // Se existir no HTML
+        // Elementos específicos das seções (garantir que existam no HTML)
+        geralStatusCompleto: document.getElementById("geral-status-completo"), 
+        geralEquipamentosAtivos: document.getElementById("geral-equipamentos-ativos"),
+        descansarBtn: document.getElementById("descansar-btn"),
         inventoryGrid: document.getElementById("inventory-grid"),
-        inventoryGoldDisplay: document.getElementById("inventory-gold-display"), // Se existir no HTML
-        armeiroShopContent: document.getElementById("armeiro-shop-content"), // Se existir no HTML
-        armadurasShopContent: document.getElementById("armaduras-shop-content"), // Se existir no HTML
-        guildSectionContent: document.getElementById("guild-section-content"), // Se existir no HTML
-        dungeonSectionContent: document.getElementById("calabouco-section-content"), // Se existir no HTML
+        inventoryGoldDisplay: document.getElementById("inventory-gold-display"),
+        armeiroShopContent: document.getElementById("armeiro-shop-content"),
+        armadurasShopContent: document.getElementById("armaduras-shop-content"),
+        guildSectionContent: document.getElementById("guild-section-content"), // Conteúdo principal da guilda
+        dungeonSectionContent: document.getElementById("calabouco-section-content"), // Conteúdo principal do calabouço
         notificationsContainer: document.getElementById("notifications-container"),
         actionButtons: document.querySelectorAll(".action-btn[data-section]")
     };
@@ -80,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         maxMp: 50,
         exp: 0,
         maxExp: 100,
-        attributes: { strength: 10, agility: 8, intelligence: 5, vitality: 12 },
+        attributes: { strength: 10, agility: 8, intelligence: 5, vitality: 12, defense: 0 }, // Adicionado defense
         inventory: new Array(20).fill(null),
         equipment: { weapon: null, helmet: null, chest: null, gloves: null, boots: null },
         activeSection: "geral",
@@ -95,34 +88,19 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
+    // Catálogos de Itens e Monstros (serão populados por Firebase ou Mocks)
     WEAPON_CATALOG_DATA = [
         { id: "w_g_01", name: "Espada Curta de Ferro", type: "weapon", classRestriction: ["Guerreiro", "Cavaleiro"], levelRequirement: 1, cost: 50, stats: { attack: 5 }, sprite: "sword_iron.png" },
-        { id: "w_g_20", name: "Espada Longa de Aço", type: "weapon", classRestriction: ["Guerreiro", "Cavaleiro"], levelRequirement: 20, cost: 500, stats: { attack: 25, strength: 2 }, sprite: "longsword_steel.png" },
         { id: "w_m_01", name: "Cajado de Aprendiz", type: "weapon", classRestriction: ["Mago", "Necromancer"], levelRequirement: 1, cost: 40, stats: { magicAttack: 6, intelligence: 1 }, sprite: "staff_apprentice.png" },
-        { id: "w_m_20", name: "Cajado Energizado", type: "weapon", classRestriction: ["Mago"], levelRequirement: 20, cost: 450, stats: { magicAttack: 30, intelligence: 3 }, sprite: "staff_energized.png" },
-        { id: "w_a_01", name: "Adaga Serrilhada", type: "weapon", classRestriction: ["Assassino"], levelRequirement: 1, cost: 60, stats: { attack: 4, agility: 2 }, sprite: "dagger_serrated.png" },
-        { id: "w_a_20", name: "Lâminas Gêmeas Sombrias", type: "weapon", classRestriction: ["Assassino"], levelRequirement: 20, cost: 550, stats: { attack: 22, agility: 5, criticalChance: 5 }, sprite: "twinblades_shadow.png" },
     ];
     ARMOR_CATALOG_DATA = [
         { id: "h_all_01", name: "Capacete de Couro Simples", type: "helmet", classRestriction: ["Todas"], levelRequirement: 1, cost: 30, stats: { defense: 2 }, sprite: "helmet_leather.png" },
-        { id: "h_g_20", name: "Elmo de Placas de Aço", type: "helmet", classRestriction: ["Guerreiro", "Cavaleiro"], levelRequirement: 20, cost: 300, stats: { defense: 10, vitality: 2 }, sprite: "helmet_steel_plate.png" },
         { id: "c_all_01", name: "Túnica de Pano Reforçado", type: "chest", classRestriction: ["Todas"], levelRequirement: 1, cost: 50, stats: { defense: 4 }, sprite: "chest_cloth_reinforced.png" },
-        { id: "c_g_20", name: "Peitoral de Aço Maciço", type: "chest", classRestriction: ["Guerreiro", "Cavaleiro"], levelRequirement: 20, cost: 500, stats: { defense: 20, vitality: 5 }, sprite: "chest_steel_massive.png" },
     ];
     MONSTER_CATALOG_DATA = [
         { id: "m001", name: "Goblin Fraco", level: 1, hp: 30, attack: 5, defense: 2, expReward: 10, goldReward: 5, sprite: "goblin_weak.png", skills: [{name: "Arranhão", power: 1.1}] },
         { id: "m002", name: "Lobo Cinzento", level: 3, hp: 50, attack: 8, defense: 3, expReward: 25, goldReward: 10, sprite: "wolf_grey.png", skills: [{name: "Mordida Feroz", power: 1.3}] },
-        { id: "m003", name: "Orc Brutamontes", level: 5, hp: 100, attack: 12, defense: 5, expReward: 50, goldReward: 20, sprite: "orc_brute.png", skills: [{name: "Clavada", power: 1.5}] },
-        { id: "m004", name: "Aranha Gigante", level: 7, hp: 70, attack: 10, defense: 4, expReward: 40, goldReward: 15, sprite: "spider_giant.png", skills: [{name: "Picada Venenosa", power: 1.2, effect: "poison", duration: 3}] }
     ];
-
-    combatState = {
-        active: false,
-        playerTurn: true,
-        currentMonster: null,
-        monsterCurrentHp: 0,
-        log: []
-    };
 
     function showNotification(message, type = "info") {
         if (!uiElements.notificationsContainer) return;
@@ -167,34 +145,34 @@ document.addEventListener("DOMContentLoaded", () => {
                                 exists: true,
                                 data: () => {
                                     if (collectionName === "players" && docId === "mockUserId" && subCollectionName === "characters" && subDocId === "mockCharId123") {
-                                        return { name: "Jogador Mock", class: "Guerreiro", level: 5, hp: 150, maxHp: 150, mp: 70, maxMp: 70, exp: 10, maxExp: 200, gold: 1000, attributes: { strength: 15, agility: 10, intelligence: 8, vitality: 12 }, spritePath: "./assets/sprites/warrior.png", inventory: [], equipment: {weapon: null, helmet: null, chest:null, gloves:null, boots:null}, skills: playerState.skills, guildId: null, activeSection: "geral" };
+                                        return { name: "Jogador Mock", class: "Guerreiro", level: 5, hp: 150, maxHp: 150, mp: 70, maxMp: 70, exp: 10, maxExp: 200, gold: 1000, attributes: { strength: 15, agility: 10, intelligence: 8, vitality: 12, defense: 2 }, spritePath: "./assets/sprites/warrior.png", inventory: [], equipment: {weapon: null, helmet: null, chest:null, gloves:null, boots:null}, skills: playerState.skills, guildId: null, activeSection: "geral" };
                                     }
                                     return {};
                                 },
                                 id: subDocId || "mockCharId123"
                             }),
-                            set: (data) => Promise.resolve(console.log(`Mock DB Set: ${collectionName}/${docId}/${subCollectionName}/${subDocId}`, data)),
+                            set: (data, options) => Promise.resolve(console.log(`Mock DB Set: ${collectionName}/${docId}/${subCollectionName}/${subDocId}`, data, options)),
                             update: (data) => Promise.resolve(console.log(`Mock DB Update: ${collectionName}/${docId}/${subCollectionName}/${subDocId}`, data)),
                             onSnapshot: (callback) => {
                                  if (collectionName === "players" && docId === "mockUserId" && subCollectionName === "characters" && (subDocId === "mockCharId123" || subDocId === selectedCharacterId)) {
                                     setTimeout(() => callback({
                                         exists: true,
-                                        data: () => ({ name: "Jogador Mock", class: "Guerreiro", level: 5, hp: 150, maxHp: 150, mp: 70, maxMp: 70, exp: 10, maxExp: 200, gold: 1000, attributes: { strength: 15, agility: 10, intelligence: 8, vitality: 12 }, spritePath: "./assets/sprites/warrior.png", inventory: [], equipment: {weapon: null, helmet: null, chest:null, gloves:null, boots:null}, skills: playerState.skills, guildId: null, activeSection: "geral" }),
+                                        data: () => ({ name: "Jogador Mock", class: "Guerreiro", level: 5, hp: 150, maxHp: 150, mp: 70, maxMp: 70, exp: 10, maxExp: 200, gold: 1000, attributes: { strength: 15, agility: 10, intelligence: 8, vitality: 12, defense: 2 }, spritePath: "./assets/sprites/warrior.png", inventory: [], equipment: {weapon: null, helmet: null, chest:null, gloves:null, boots:null}, skills: playerState.skills, guildId: null, activeSection: "geral" }),
                                         id: subDocId || "mockCharId123"
                                     }), 50);
                                  }
-                                 return () => {};
+                                 return () => { console.log("Mock onSnapshot unsubscribed"); };
                             }
                         })
                     }),
                     get: () => Promise.resolve({ exists: false, data: () => ({}) }),
-                    set: (data) => Promise.resolve(console.log(`Mock DB Set: ${collectionName}/${docId}`, data)),
+                    set: (data, options) => Promise.resolve(console.log(`Mock DB Set: ${collectionName}/${docId}`, data, options)),
                     update: (data) => Promise.resolve(console.log(`Mock DB Update: ${collectionName}/${docId}`, data)),
                     onSnapshot: (callback) => {
                         if (collectionName === "guilds" && docId === "mockGuild123") {
                             setTimeout(() => callback({exists: true, data: () => ({name: "Guilda dos Mocks", leaderId: "mockLeader", members: {"mockUserId": {name: "Jogador Mock"}} })}), 50);
                         }
-                        return () => {};
+                        return () => { console.log("Mock onSnapshot unsubscribed"); };
                     }
                 }),
                 add: (data) => Promise.resolve({id: "mockGuildId", ...console.log(`Mock DB Add: ${collectionName}`, data)})
@@ -211,12 +189,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     if(eventType === "value" && path.includes("onlineStatus")){
                          setTimeout(() => callback({val: () => ({mockUser1: {name: "Membro Mock 1", online: true}, mockUser2: {name: "Membro Mock 2", online: false}})}), 200);
                     }
+                    return () => { console.log(`Mock RTDB Listener (off) for ${path}`); };
                 },
                 off: () => {console.log(`Mock RTDB Listener (off) for ${path}`)}, 
                 push: (data) => {console.log(`Mock RTDB Push to ${path}:`, data); return Promise.resolve({key: "mockMessageKey"})},
                 set: (data) => {console.log(`Mock RTDB Set to ${path}:`, data); return Promise.resolve()},
                 remove: () => {console.log(`Mock RTDB Remove from ${path}`); return Promise.resolve()},
-                onDisconnect: () => ({ update: (data) => console.log("Mock RTDB onDisconnect update", data) })
+                onDisconnect: () => ({ 
+                    remove: () => Promise.resolve(console.log("Mock RTDB onDisconnect remove")),
+                    set: (data) => Promise.resolve(console.log("Mock RTDB onDisconnect set", data)),
+                    update: (data) => Promise.resolve(console.log("Mock RTDB onDisconnect update", data))
+                })
             })
         };
         auth = {
@@ -224,11 +207,16 @@ document.addEventListener("DOMContentLoaded", () => {
             onAuthStateChanged: (callback) => {
                 const mockUser = { uid: "mockUserId", email: "mock@example.com" };
                 currentUserId = mockUser.uid;
+                window.currentUserId = currentUserId; 
                 setTimeout(() => callback(mockUser), 100);
-                return () => {};
+                return () => { console.log("Mock onAuthStateChanged unsubscribed"); };
             }
         };
-        if (!selectedCharacterId) selectedCharacterId = "mockCharId123";
+        if (!selectedCharacterId) {
+            selectedCharacterId = "mockCharId123";
+            window.selectedCharacterId = selectedCharacterId;
+        }
+        console.log("Firebase Mock totalmente inicializado.");
     }
 
     function setDefaultSpriteForClass(){
@@ -295,14 +283,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Chamar funções de atualização específicas da seção ativa
-        if (playerState.activeSection === "geral" && typeof updateGeralSection === 'function') updateGeralSection();
-        if (playerState.activeSection === "inventario" && typeof renderInventory === 'function') renderInventory();
-        if (playerState.activeSection === "armeiro" && typeof populateArmeiroShop === 'function') populateArmeiroShop();
-        if (playerState.activeSection === "armaduras" && typeof populateArmadurasShop === 'function') populateArmadurasShop();
-        if (playerState.activeSection === "guild" && typeof populateGuildSection === 'function') populateGuildSection();
+        if (playerState.activeSection === "geral" && typeof window.updateGeralSection === "function") window.updateGeralSection();
+        if (playerState.activeSection === "inventario" && typeof window.renderInventory === "function") window.renderInventory();
+        if (playerState.activeSection === "armeiro" && typeof window.populateArmeiroShop === "function") window.populateArmeiroShop();
+        if (playerState.activeSection === "armaduras" && typeof window.populateArmorShop === "function") window.populateArmorShop();
+        if (playerState.activeSection === "guild" && typeof window.populateGuildSection === "function") window.populateGuildSection();
         if (playerState.activeSection === "calabouco") {
-            if (combatState.active && typeof updateCombatUI === 'function') updateCombatUI();
-            else if (typeof prepareDungeonScreen === 'function') prepareDungeonScreen();
+            // A lógica de combate no game-dungeon.js cuidará de renderizar sua própria UI
+            // Mas podemos chamar uma função de preparação se não estiver em combate ativo
+            if (window.combatState && !window.combatState.active && typeof window.prepareDungeonScreen === "function") {
+                window.prepareDungeonScreen();
+            } else if (window.combatState && window.combatState.active && typeof window.renderCombatUI === "function") {
+                window.renderCombatUI(); // Garante que a UI de combate seja atualizada se necessário
+            }
         }
     }
 
@@ -316,8 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
             targetSection.classList.add("active-section");
             playerState.activeSection = sectionId;
             console.log(`Seção ativa alterada para: ${playerState.activeSection}`);
-            updateUI(); // Atualiza a UI para refletir a nova seção e seus dados
-            if (typeof savePlayerCharacterData === 'function') savePlayerCharacterData(); // Salva o estado da seção ativa
+            updateUI(); // Atualiza a UI para refletir a nova seção e seus conteúdos
+            if (typeof savePlayerCharacterData === "function") savePlayerCharacterData(); // Salva a seção ativa
         } else {
             console.error(`Seção com ID ${sectionId}-section não encontrada.`);
         }
@@ -337,65 +330,66 @@ document.addEventListener("DOMContentLoaded", () => {
                 button.addEventListener("click", handleActionButtonClick);
             });
             console.log("Botões de ação configurados.");
-        } else {
-            console.error("Botões de ação não encontrados para configuração.");
         }
-        // Configurar botão de descanso se existir e a função toggleRest estiver disponível
-        if (uiElements.descansarBtn && typeof toggleRest === 'function') {
-            uiElements.descansarBtn.removeEventListener("click", toggleRest);
-            uiElements.descansarBtn.addEventListener("click", toggleRest);
-            console.log("Botão de descanso configurado.");
-        }
+        // O botão de descanso é configurado em game-general.js agora, pois sua lógica está lá
+        // Os botões de loja são configurados dentro de populateShop
+        // Os botões de guilda são configurados em game-guild.js
+        // Os botões de calabouço são configurados em game-dungeon.js
     }
 
     async function loadPlayerCharacterData() {
         if (!currentUserId || !selectedCharacterId || !db) {
             console.warn("Não é possível carregar dados: UID do usuário ou ID do personagem não definidos, ou DB não inicializado.");
-            if (auth && !auth.currentUser) {
+            if (auth && !auth.currentUser && selectedCharacterId !== "mockCharId123") {
                  showNotification("Sessão expirada ou não autenticada. Por favor, faça login novamente.", "error");
-                 // window.location.href = "login.html"; // Redirecionar para login
                  return;
             }
-            // Se for mock, tenta carregar dados mock
-            if (selectedCharacterId === "mockCharId123" && db.collection) { // Verifica se é mock e db tem 'collection'
-                const mockCharDoc = await db.collection("players").doc("mockUserId").collection("characters").doc("mockCharId123").get();
-                if (mockCharDoc.exists) {
-                    Object.assign(playerState, mockCharDoc.data());
-                    playerState.id = mockCharDoc.id;
-                    setDefaultSpriteForClass();
-                    updateUI();
-                    switchSection(playerState.activeSection || "geral");
-                    console.log("Dados mock do personagem carregados.");
-                    return;
-                }
+            // Se for mock e db estiver definido (mockado), tenta carregar mock
+            if (selectedCharacterId === "mockCharId123" && db && db.collection) { 
+                try {
+                    const mockCharDocRef = db.collection("players").doc("mockUserId").collection("characters").doc("mockCharId123");
+                    const mockCharDoc = await mockCharDocRef.get();
+                    if (mockCharDoc.exists) {
+                        Object.assign(playerState, mockCharDoc.data());
+                        playerState.id = mockCharDoc.id;
+                        setDefaultSpriteForClass();
+                        updateUI();
+                        switchSection(playerState.activeSection || "geral");
+                        console.log("Dados mock do personagem carregados.");
+                        return;
+                    }
+                } catch (e) { console.error("Erro ao carregar mock char:", e); }
             }
-            showNotification("Não foi possível carregar os dados do personagem.", "error");
-            return;
-        }
-        try {
-            if (playerCharacterUnsubscribe) playerCharacterUnsubscribe(); 
-            const characterDocRef = db.collection("players").doc(currentUserId).collection("characters").doc(selectedCharacterId);
-            playerCharacterUnsubscribe = characterDocRef.onSnapshot(async (doc) => {
-                if (doc.exists) {
-                    console.log("Dados do personagem recebidos do Firebase:", doc.data());
-                    Object.assign(playerState, doc.data());
-                    playerState.id = doc.id; 
-                    setDefaultSpriteForClass();
-                    updateUI();
-                    // Não chamar switchSection aqui para evitar loop se activeSection for salva e carregada
-                    // A seção inicial será definida em initializeGame ou mantida como 'geral'
-                } else {
-                    console.error("Personagem não encontrado no Firebase.");
-                    showNotification("Personagem não encontrado. Verifique a seleção ou crie um novo.", "error");
-                    // window.location.href = "char_selection.html"; // Redirecionar para seleção
-                }
-            }, (error) => {
-                console.error("Erro ao carregar dados do personagem em tempo real:", error);
-                showNotification("Erro ao carregar dados do personagem.", "error");
-            });
-        } catch (error) {
-            console.error("Erro ao configurar o listener de dados do personagem:", error);
-            showNotification("Erro crítico ao carregar dados do personagem.", "error");
+            if (auth && !auth.currentUser && selectedCharacterId !== "mockCharId123") { 
+                showNotification("Não foi possível carregar os dados do personagem sem autenticação.", "error");
+                return;
+            }
+            if (!currentUserId && selectedCharacterId !== "mockCharId123") return;
+
+            try {
+                if (playerCharacterUnsubscribe) playerCharacterUnsubscribe(); 
+                const characterDocRef = db.collection("players").doc(currentUserId).collection("characters").doc(selectedCharacterId);
+                playerCharacterUnsubscribe = characterDocRef.onSnapshot(async (doc) => {
+                    if (doc.exists) {
+                        console.log("Dados do personagem recebidos do Firebase:", doc.data());
+                        Object.assign(playerState, doc.data());
+                        playerState.id = doc.id; 
+                        setDefaultSpriteForClass();
+                        updateUI();
+                        // Não chamar switchSection aqui para evitar loops se a seção ativa for salva no DB
+                    } else {
+                        console.error("Personagem não encontrado no Firebase.");
+                        showNotification("Personagem não encontrado. Verifique a seleção ou crie um novo.", "error");
+                        // Redirecionar para seleção de personagem ou login?
+                    }
+                }, (error) => {
+                    console.error("Erro ao carregar dados do personagem em tempo real:", error);
+                    showNotification("Erro ao carregar dados do personagem.", "error");
+                });
+            } catch (error) {
+                console.error("Erro ao configurar o listener de dados do personagem:", error);
+                showNotification("Erro crítico ao carregar dados do personagem.", "error");
+            }
         }
     }
 
@@ -405,23 +399,25 @@ document.addEventListener("DOMContentLoaded", () => {
             authUnsubscribe = auth.onAuthStateChanged(user => {
                 if (user) {
                     currentUserId = user.uid;
+                    window.currentUserId = currentUserId; 
                     console.log("Usuário autenticado:", currentUserId);
                     if (selectedCharacterId) {
                         console.log("ID do personagem selecionado:", selectedCharacterId);
                         loadPlayerCharacterData();
                     } else {
-                        console.error("Nenhum ID de personagem selecionado. Redirecionando para seleção...");
-                        showNotification("Nenhum personagem selecionado.", "error");
-                        // window.location.href = "char_selection.html"; 
+                        console.error("Nenhum ID de personagem selecionado.");
+                        showNotification("Nenhum personagem selecionado. Redirecionando para seleção...", "error");
+                        // window.location.href = "char-select.html"; // Exemplo de redirecionamento
                     }
                 } else {
                     currentUserId = null;
-                    console.log("Nenhum usuário autenticado. Usando mock ou redirecionando para login...");
-                    // Se não houver usuário e estivermos usando mocks, podemos tentar carregar o mock char
+                    window.currentUserId = null;
+                    console.log("Nenhum usuário autenticado. Usando mock se aplicável...");
                     if (selectedCharacterId === "mockCharId123") {
-                        loadPlayerCharacterData(); // Tentará carregar o mock
+                        loadPlayerCharacterData(); // Tenta carregar mock
                     } else {
-                        // window.location.href = "login.html";
+                        showNotification("Por favor, faça login para continuar.", "warning");
+                        // window.location.href = "login.html"; // Exemplo de redirecionamento
                     }
                 }
             });
@@ -430,36 +426,41 @@ document.addEventListener("DOMContentLoaded", () => {
             showNotification("Falha na autenticação. Tente recarregar.", "error");
         }
         setupActionButtons();
-        switchSection(playerState.activeSection || "geral"); // Define a seção inicial
-        console.log("Jogo inicializado. Seção ativa:", playerState.activeSection);
+        // A seção inicial será definida por loadPlayerCharacterData ou pelo mock.
+        // switchSection(playerState.activeSection || "geral"); 
+        console.log("Jogo inicializado. Aguardando dados do personagem...");
+
+        // Inicializar módulos específicos que precisam de setup no DOMContentLoaded
+        if (typeof window.initializeGuild === "function") window.initializeGuild();
+        if (typeof window.initializeDungeon === "function") window.initializeDungeon();
+        // Outros módulos podem ter suas próprias inicializações se necessário
     }
 
-    // --- Funções de Loja (Comum para Armeiro e Armaduras) ---
-    // Movido para cá para ser acessível por game-armory.js e game-armor-shop.js
     function populateShop(shopContentElement, catalog, title) {
-        if (!shopContentElement || !playerState.id) return;
+        if (!shopContentElement || !playerState.id) {
+            console.warn("populateShop: Elemento da loja ou ID do jogador não encontrado.");
+            return;
+        }
         let shopHtml = `<h3>${title}</h3><div class="shop-items-grid">`;
         catalog.forEach(item => {
-            if (item.classRestriction.includes(playerState.class) || item.classRestriction.includes("Todas")) {
-                if (playerState.level >= item.levelRequirement) {
-                    shopHtml += `
-                        <div class="shop-item" data-item-id="${item.id}">
-                            <img src="./assets/sprites/items/${item.sprite}" alt="${item.name}" class="item-sprite">
-                            <p><strong>${item.name}</strong></p>
-                            <p>Custo: ${item.cost} Ouro</p>
-                            <div class="item-stats">
-                                ${Object.entries(item.stats).map(([stat, value]) => `<p>${stat.charAt(0).toUpperCase() + stat.slice(1)}: ${value}</p>`).join("")}
-                            </div>
-                            <button class="buy-btn hexagonal-border small-btn" data-item-id="${item.id}" data-catalog-type="${catalog === WEAPON_CATALOG_DATA ? 'weapon' : 'armor'}">Comprar</button>
+            if ((item.classRestriction.includes(playerState.class) || item.classRestriction.includes("Todas")) && playerState.level >= item.levelRequirement) {
+                shopHtml += `
+                    <div class="shop-item" data-item-id="${item.id}">
+                        <img src="./assets/sprites/items/${item.sprite || 'default_item.png'}" alt="${item.name}" class="item-sprite">
+                        <p><strong>${item.name}</strong></p>
+                        <p>Custo: ${item.cost} Ouro</p>
+                        <div class="item-stats">
+                            ${Object.entries(item.stats).map(([stat, value]) => `<p>${stat.charAt(0).toUpperCase() + stat.slice(1)}: ${value}</p>`).join("")}
                         </div>
-                    `;
-                }
+                        <button class="buy-btn hexagonal-border small-btn" data-item-id="${item.id}" data-catalog-type="${catalog === WEAPON_CATALOG_DATA ? 'weapon' : 'armor'}">Comprar</button>
+                    </div>
+                `;
             }
         });
         shopHtml += "</div>";
         shopContentElement.innerHTML = shopHtml;
         shopContentElement.querySelectorAll(".buy-btn").forEach(button => {
-            button.removeEventListener("click", handleBuyItemClick);
+            button.removeEventListener("click", handleBuyItemClick); // Evita múltiplos listeners
             button.addEventListener("click", handleBuyItemClick);
         });
     }
@@ -490,43 +491,31 @@ document.addEventListener("DOMContentLoaded", () => {
         playerState.inventory[emptySlotIndex] = { ...item }; // Adiciona uma cópia do item
         showNotification(`${item.name} comprado e adicionado ao inventário!`, "success");
         updateUI();
-        if (typeof savePlayerCharacterData === 'function') savePlayerCharacterData();
+        if (typeof savePlayerCharacterData === "function") savePlayerCharacterData();
     }
 
-    // Inicializa o jogo
     initializeGame();
 
-    // API Global para Testes (opcional, pode ser removida em produção)
-    window.gameAPI = {
-        getState: () => playerState,
-        getCombatState: () => combatState,
-        setSelectedChar: (id) => { selectedCharacterId = id; localStorage.setItem("selectedCharacterId", id); console.log("ID do personagem para teste definido como:", id); loadPlayerCharacterData(); },
-        buyItemTest: (itemId, catalogType) => {
-            const catalog = catalogType === "weapon" ? WEAPON_CATALOG_DATA : ARMOR_CATALOG_DATA;
-            buyItemFromShop(itemId, catalog);
-        },
-        switchSectionTest: switchSection,
-        joinMockGuild: () => {
-            if (!currentUserId) { showNotification("Você precisa estar logado para entrar em uma guilda mock.", "warning"); return; }
-            playerState.guildId = "mockGuild123";
-            currentGuildData = {name: "Guilda dos Mocks", leaderId: "mockLeader"}; // currentGuildData é local de game-guild.js, precisa ajustar
-            if(rtdb) rtdb.ref(`guilds/mockGuild123/onlineStatus/${currentUserId}`).set({ name: playerState.name, online: true });
-            updateUI();
-            showNotification("Entrou na Guilda Mock!", "info");
-        },
-        sendMockChatMessage: (text) => {
-            const guildChatMessagesDynamic = document.getElementById("guild-chat-messages-dynamic");
-            if(playerState.guildId && guildChatMessagesDynamic){
-                 const msgElement = document.createElement("div");
-                msgElement.classList.add("chat-message");
-                msgElement.innerHTML = `<strong>${playerState.name}:</strong> ${text}`;
-                guildChatMessagesDynamic.appendChild(msgElement);
-                guildChatMessagesDynamic.scrollTop = guildChatMessagesDynamic.scrollHeight;
-            }
-        },
-        startTestCombat: () => { if(typeof startCombat === 'function') startCombat(); else console.error('startCombat não está definida globalmente'); },
-        saveGameState: () => savePlayerCharacterData()
-    };
+    // Expor funções e variáveis globais para outros módulos
+    window.showNotification = showNotification;
+    window.savePlayerCharacterData = savePlayerCharacterData;
+    window.updateUI = updateUI;
+    window.switchSection = switchSection;
+    window.loadPlayerCharacterData = loadPlayerCharacterData;
+    window.initializeGame = initializeGame;
+    window.populateShop = populateShop;
+    window.buyItemFromShop = buyItemFromShop;
+    window.setDefaultSpriteForClass = setDefaultSpriteForClass;
 
-}); // Fim do DOMContentLoaded
+    window.playerState = playerState;
+    window.uiElements = uiElements;
+    window.db = db; 
+    window.rtdb = rtdb;
+    window.auth = auth;
+    window.WEAPON_CATALOG_DATA = WEAPON_CATALOG_DATA;
+    window.ARMOR_CATALOG_DATA = ARMOR_CATALOG_DATA;
+    window.MONSTER_CATALOG_DATA = MONSTER_CATALOG_DATA;
+    // window.combatState é gerenciado em game-dungeon.js mas exposto globalmente lá.
+
+});
 

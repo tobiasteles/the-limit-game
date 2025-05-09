@@ -2,8 +2,6 @@
 
 console.log("game-inventory.js: Carregado.");
 
-
-
 function renderInventory() {
     // Requer: uiElements, playerState (globais de game-main.js)
     if (!uiElements.inventoryGrid || !playerState.id) return;

@@ -2,19 +2,30 @@
 
 console.log("game-armor-shop.js: Carregado.");
 
-import { uiElements, playerState } from "js/game/game-main.js"; // Requer: game-main.js'
+function initializeArmorShop() {
+    // Lógica de inicialização para a seção de Loja de Armaduras, se necessário
+    console.log("Armor Shop initialized");
+}
 
-function populateArmadurasShop() {
-    // Requer: uiElements, ARMOR_CATALOG_DATA (globais de game-main.js)
-    // Requer: populateShop (função global de game-main.js ou de um futuro game-shop-utils.js)
-    if (typeof populateShop === 'function') {
-        populateShop(uiElements.armadurasShopContent, ARMOR_CATALOG_DATA, "Armaduras Disponíveis");
+// Função para popular a loja de armaduras
+function populateArmorShop() {
+    // Requer: uiElements, ARMOR_CATALOG_DATA, populateShop (globais de game-main.js)
+    if (typeof window.populateShop === 'function' && window.uiElements && window.uiElements.armadurasShopContent && window.ARMOR_CATALOG_DATA) {
+        window.populateShop(window.uiElements.armadurasShopContent, window.ARMOR_CATALOG_DATA, "Armaduras Disponíveis");
     } else {
-        console.error("populateShop function is not defined. Make sure it's loaded from game-main.js or a shared shop utility file.");
+        console.error("Erro em populateArmorShop: window.populateShop, window.uiElements.armadurasShopContent ou window.ARMOR_CATALOG_DATA não definidos.");
+        if (typeof window.showNotification === 'function') {
+            window.showNotification("Erro ao carregar a Loja de Armaduras. Verifique o console.", "error");
+        }
     }
 }
 
-// A função populateArmadurasShop será chamada por updateUI em game-main.js
-// quando playerState.activeSection === "armaduras".
-// Os event listeners para os botões de compra dentro da loja são configurados por populateShop.
+// Expor funções se necessário
+window.initializeArmorShop = initializeArmorShop;
+window.populateArmorShop = populateArmorShop; // Expondo para ser chamado pelo game-main.js ou outros módulos
+
+// Chamar populateArmorShop quando o DOM estiver pronto e os dados carregados, 
+// ou quando a seção for ativada (controlado por game-main.js)
+// Exemplo de como pode ser chamado em game-main.js na função updateUI:
+// if (playerState.activeSection === "armaduras" && typeof window.populateArmorShop === "function") window.populateArmorShop();
 

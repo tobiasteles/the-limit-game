@@ -1,299 +1,385 @@
 // game-dungeon.js: Lógica da seção Calabouço e combate
 
-
-// Requer: playerState, combatState (globais de game-main.js)
-// Requer: uiElements (global de game-main.js)
-// Requer: showNotification (global de game-main.js)
-// Requer: addCombatLog, levelUp (deste módulo)
-
-// Requer: WEAPON_CATALOG_DATA, ARMOR_CATALOG_DATA (globais de game-main.js)
-// Requer: playerState, combatState (globais de game-main.js)
-// Requer: uiElements (global de game-main.js)
-// Requer: showNotification (global de game-main.js)
-// Requer: addCombatLog, levelUp (deste módulo)
-// Requer: WEAPON_CATALOG_DATA, ARMOR_CATALOG_DATA (globais de game-main.js)
-// Requer: playerState, combatState (globais de game-main.js)
-// Requer: uiElements (global de game-main.js)
 console.log("game-dungeon.js: Carregado.");
 
+// Variáveis de estado do combate (movidas de game-main.js para cá, mas ainda acessadas globalmente via window.combatState)
+window.combatState = {
+    active: false,
+    playerTurn: true,
+    currentMonster: null,
+    monsterCurrentHp: 0,
+    log: [],
+    playerOriginalStats: null, // Para restaurar após o combate
+    monsterOriginalStats: null // Para referência
+};
+
+function initializeDungeon() {
+    // Lógica de inicialização para a seção de Calabouço, se necessário
+    console.log("Dungeon section initialized");
+
+    // Configurar event listener para o botão de iniciar calabouço (se existir)
+    const startDungeonBtn = document.getElementById("start-normal-dungeon-btn"); // Assumindo que este é o ID
+    if (startDungeonBtn) {
+        startDungeonBtn.addEventListener("click", () => startCombat("normal"));
+    }
+    // Adicionar listeners para outros botões de dificuldade, se houver
+    // Ex: document.getElementById("start-hard-dungeon-btn").addEventListener("click", () => startCombat("hard"));
+}
+
 function prepareDungeonScreen() {
-    // Requer: uiElements, playerState, combatState (globais de game-main.js)
-    // Requer: startCombat, updateCombatUI (deste módulo)
-    if (!uiElements.dungeonSectionContent || !playerState.id) return;
-    console.log("Preparando tela do Calabouço...");
-    uiElements.dungeonSectionContent.innerHTML = `
-        <h2>Calabouço</h2>
-        <p>Explore as profundezas e enfrente monstros perigosos!</p>
-        <button id="find-monster-btn-dungeon" class="hexagonal-border large-btn">Procurar Monstro</button>
-        <div id="combat-area" class="combat-area-hidden">
-            <div class="combat-sprites">
-                <div class="combatant-display">
-                    <img id="player-combat-sprite-dungeon" src="${playerState.spritePath}" alt="Jogador">
-                    <p id="player-combat-hp-dungeon">HP: ${playerState.hp}/${playerState.maxHp}</p>
-                </div>
-                <div class="combatant-display">
-                    <img id="monster-combat-sprite-dungeon" src="./assets/sprites/monsters/placeholder_monster.png" alt="Monstro">
-                    <p id="monster-combat-hp-dungeon">HP: ???/???</p>
-                </div>
+    // Requer: uiElements (globais de game-main.js)
+    if (!window.uiElements || !window.uiElements.dungeonSectionContent) {
+        console.warn("prepareDungeonScreen: Dependências globais não encontradas.");
+        return;
+    }
+    const dungeonContent = window.uiElements.dungeonSectionContent;
+    if (window.combatState.active) {
+        // Se o combate estiver ativo, a UI de combate deve ser exibida
+        renderCombatUI();
+    } else {
+        // Se não houver combate ativo, mostrar tela de seleção de dificuldade
+        dungeonContent.innerHTML = `
+            <h2>Calabouço</h2>
+            <p>Escolha a dificuldade:</p>
+            <button id="start-normal-dungeon-btn" class="action-btn hexagonal-border">Normal</button>
+            <button id="start-hard-dungeon-btn" class="action-btn hexagonal-border" disabled>Difícil (Em Breve)</button>
+            <button id="start-nightmare-dungeon-btn" class="action-btn hexagonal-border" disabled>Pesadelo (Em Breve)</button>
+            <div id="battle-log-container" class="hidden">
+                <h3>Log de Batalha</h3>
+                <div id="battle-log"></div>
             </div>
-            <div id="combat-actions-container-dungeon" class="combat-actions"></div>
-            <div id="combat-log-dungeon" class="combat-log-terminal"></div>
+            <div id="combat-ui-container"></div>
+        `;
+        // Re-adicionar event listeners pois o innerHTML foi reescrito
+        document.getElementById("start-normal-dungeon-btn").addEventListener("click", () => startCombat("normal"));
+    }
+    console.log("Tela do Calabouço preparada.");
+}
+
+function startCombat(difficulty) {
+    if (window.combatState.active) {
+        window.showNotification("Você já está em combate!", "warning");
+        return;
+    }
+    if (!window.playerState || !window.playerState.id || !window.MONSTER_CATALOG_DATA) {
+        window.showNotification("Não é possível iniciar o combate: Dados do jogador ou monstros não carregados.", "error");
+        return;
+    }
+
+    // Selecionar um monstro aleatório (pode ser mais complexo com base na dificuldade)
+    const availableMonsters = window.MONSTER_CATALOG_DATA.filter(m => {
+        // Lógica de filtro de dificuldade (exemplo simples)
+        if (difficulty === "normal") return m.level <= 5;
+        if (difficulty === "hard") return m.level > 5 && m.level <= 10;
+        if (difficulty === "nightmare") return m.level > 10;
+        return true;
+    });
+
+    if (availableMonsters.length === 0) {
+        window.showNotification(`Nenhum monstro encontrado para a dificuldade ${difficulty}.`, "error");
+        return;
+    }
+
+    const monster = availableMonsters[Math.floor(Math.random() * availableMonsters.length)];
+    window.combatState.currentMonster = { ...monster }; // Copia para não modificar o catálogo
+    window.combatState.monsterCurrentHp = monster.hp;
+    window.combatState.monsterOriginalStats = { ...monster }; // Salva stats originais
+    window.combatState.active = true;
+    window.combatState.playerTurn = true;
+    window.combatState.log = [];
+
+    // Salvar stats originais do jogador para restaurar buffs/debuffs depois
+    window.combatState.playerOriginalStats = {
+        hp: window.playerState.hp,
+        mp: window.playerState.mp,
+        attributes: { ...window.playerState.attributes }
+    };
+
+    addLogMessage(`Um ${window.combatState.currentMonster.name} (Nível ${window.combatState.currentMonster.level}) apareceu!`);
+    window.showNotification(`Combate iniciado contra ${window.combatState.currentMonster.name}!`, "info");
+    renderCombatUI();
+    if (typeof window.updateUI === 'function') window.updateUI(); // Atualiza HP/MP do jogador na UI principal
+}
+
+function renderCombatUI() {
+    if (!window.combatState.active || !window.combatState.currentMonster || !window.uiElements || !window.uiElements.dungeonSectionContent) {
+        prepareDungeonScreen(); // Volta para a tela de seleção se o combate não estiver ativo
+        return;
+    }
+
+    const dungeonContent = window.uiElements.dungeonSectionContent;
+    const monster = window.combatState.currentMonster;
+    const player = window.playerState;
+
+    let combatHtml = `
+        <div id="combat-area">
+            <div id="monster-info">
+                <h4>${monster.name} (Nível ${monster.level})</h4>
+                <img src="./assets/sprites/monsters/${monster.sprite}" alt="${monster.name}" class="monster-sprite">
+                <p>HP: ${window.combatState.monsterCurrentHp}/${monster.hp}</p>
+            </div>
+            <div id="player-combat-actions">
+                <h4>Ações de ${player.name}</h4>
+                <button id="attack-btn" class="action-btn combat-btn hexagonal-border">Atacar</button>
+                <button id="skill-btn" class="action-btn combat-btn hexagonal-border">Habilidade</button>
+                <button id="item-btn" class="action-btn combat-btn hexagonal-border">Item</button>
+                <button id="flee-btn" class="action-btn combat-btn hexagonal-border cancel-btn">Fugir</button>
+            </div>
+        </div>
+        <div id="battle-log-container">
+            <h3>Log de Batalha</h3>
+            <div id="battle-log">
+                ${window.combatState.log.join("")}
+            </div>
         </div>
     `;
-    const findMonsterBtnDungeon = document.getElementById("find-monster-btn-dungeon");
-    if(findMonsterBtnDungeon) {
-        findMonsterBtnDungeon.removeEventListener("click", startCombat); 
-        findMonsterBtnDungeon.addEventListener("click", startCombat);
-        console.log("Botão Procurar Monstro configurado.");
-    } else {
-        console.error("Botão find-monster-btn-dungeon não encontrado após popular a seção!");
-    }
-    updateCombatUI(); 
+    dungeonContent.innerHTML = combatHtml;
+
+    // Adicionar event listeners aos botões de combate
+    document.getElementById("attack-btn").addEventListener("click", playerAttack);
+    document.getElementById("skill-btn").addEventListener("click", playerUseSkill); // Implementar playerUseSkill
+    document.getElementById("item-btn").addEventListener("click", playerUseItem);   // Implementar playerUseItem
+    document.getElementById("flee-btn").addEventListener("click", playerFlee);
+
+    console.log("UI de combate renderizada.");
 }
 
-function startCombat() {
-    // Requer: playerState, MONSTER_CATALOG_DATA, combatState, showNotification (globais de game-main.js)
-    // Requer: addCombatLog, updateCombatUI (deste módulo)
-    console.log("Função startCombat iniciada.");
-    if (!playerState.id) {
-        console.log("startCombat: playerState.id não definido. Retornando.");
-        if (typeof showNotification === "function") showNotification("Dados do jogador não carregados para iniciar combate.", "warning");
-        return;
+function addLogMessage(message, type = "info") {
+    const logEntry = `<p class="log-${type}">${new Date().toLocaleTimeString()}: ${message}</p>`;
+    window.combatState.log.unshift(logEntry); // Adiciona no início para o log mais recente aparecer no topo
+    if (window.combatState.log.length > 20) {
+        window.combatState.log.pop(); // Limita o tamanho do log
     }
-    console.log("startCombat: playerState.id OK.");
-
-    const availableMonsters = MONSTER_CATALOG_DATA.filter(m => m.level <= playerState.level + 2);
-    if (availableMonsters.length === 0) {
-        console.log("startCombat: Nenhum monstro disponível. Retornando.");
-        addCombatLog("Nenhum monstro adequado encontrado no momento.");
-        const findMonsterBtnDungeon = document.getElementById("find-monster-btn-dungeon");
-        if(findMonsterBtnDungeon) findMonsterBtnDungeon.style.display = "block";
-        return;
+    const battleLogElement = document.getElementById("battle-log");
+    if (battleLogElement) {
+        battleLogElement.innerHTML = window.combatState.log.join("");
     }
-    console.log("startCombat: Monstros disponíveis encontrados.");
-
-    const monsterData = { ...availableMonsters[Math.floor(Math.random() * availableMonsters.length)] };
-    combatState.active = true;
-    combatState.playerTurn = true;
-    combatState.currentMonster = monsterData;
-    combatState.monsterCurrentHp = monsterData.hp;
-    combatState.log = [];
-    console.log("startCombat: Estado de combate inicializado com monstro:", monsterData.name);
-
-    const combatArea = document.getElementById("combat-area");
-    if(combatArea) combatArea.classList.remove("combat-area-hidden");
-    const findMonsterBtnDungeon = document.getElementById("find-monster-btn-dungeon");
-    if(findMonsterBtnDungeon) findMonsterBtnDungeon.style.display = "none";
-
-    addCombatLog(`Um ${monsterData.name} selvagem apareceu!`);
-    updateCombatUI();
-    console.log("startCombat: Combate iniciado e UI atualizada.");
-}
-
-function updateCombatUI() {
-    // Requer: combatState, playerState (globais de game-main.js)
-    // Requer: renderCombatActions, renderCombatLog (deste módulo)
-    const combatArea = document.getElementById("combat-area");
-    const findMonsterBtnDungeon = document.getElementById("find-monster-btn-dungeon");
-
-    if (!combatState.active || !combatState.currentMonster || !playerState.id) {
-        if(combatArea) combatArea.classList.add("combat-area-hidden");
-        if(findMonsterBtnDungeon) findMonsterBtnDungeon.style.display = "block";
-        return;
-    }
-    if(combatArea) combatArea.classList.remove("combat-area-hidden");
-    if(findMonsterBtnDungeon) findMonsterBtnDungeon.style.display = "none";
-
-    const playerCombatSpriteEl = document.getElementById("player-combat-sprite-dungeon");
-    const monsterCombatSpriteEl = document.getElementById("monster-combat-sprite-dungeon");
-    const playerCombatHPEl = document.getElementById("player-combat-hp-dungeon");
-    const monsterCombatHPEl = document.getElementById("monster-combat-hp-dungeon");
-
-    if (playerCombatSpriteEl) playerCombatSpriteEl.src = playerState.spritePath;
-    if (monsterCombatSpriteEl) monsterCombatSpriteEl.src = `./assets/sprites/monsters/${combatState.currentMonster.sprite}`;
-    if (playerCombatHPEl) playerCombatHPEl.textContent = `HP: ${playerState.hp}/${playerState.maxHp}`;
-    if (monsterCombatHPEl) monsterCombatHPEl.textContent = `HP: ${combatState.monsterCurrentHp}/${combatState.currentMonster.hp}`;
-    renderCombatActions();
-    renderCombatLog();
-}
-
-function renderCombatActions() {
-    // Requer: combatState, playerState (globais de game-main.js)
-    // Requer: handleCombatAction (deste módulo)
-    const combatActionsContainerEl = document.getElementById("combat-actions-container-dungeon");
-    if (!combatActionsContainerEl || !combatState.playerTurn || !combatState.active || !playerState.id) {
-        if(combatActionsContainerEl) combatActionsContainerEl.innerHTML = "";
-        return;
-    }
-    let actionsHtml = `<button data-action="attack">Atacar</button>`;
-    playerState.skills.forEach(skill => {
-        if (skill.class.includes(playerState.class) || skill.class.includes("Todas")) {
-            actionsHtml += `<button data-action="skill" data-skill-id="${skill.id}">${skill.name} (MP: ${skill.cost})</button>`;
-        }
-    });
-    actionsHtml += `<button data-action="item">Item</button>`;
-    actionsHtml += `<button data-action="flee">Fugir</button>`;
-    combatActionsContainerEl.innerHTML = actionsHtml;
-    combatActionsContainerEl.querySelectorAll("button").forEach(btn => {
-        btn.removeEventListener("click", handleCombatAction); 
-        btn.addEventListener("click", handleCombatAction);
-    });
-}
-
-function handleCombatAction(event) {
-    // Requer: combatState, playerState (globais de game-main.js)
-    // Requer: playerAttack, playerUseSkill, playerFlee, addCombatLog, monsterTurn, updateCombatUI (deste módulo)
-    if (!combatState.playerTurn || !combatState.active || !playerState.id) return;
-    const action = event.target.dataset.action;
-    const skillId = event.target.dataset.skillId;
-    combatState.playerTurn = false;
-    switch (action) {
-        case "attack": playerAttack(); break;
-        case "skill": playerUseSkill(skillId); break;
-        case "item": addCombatLog("Sistema de itens em combate ainda não implementado."); combatState.playerTurn = true; break;
-        case "flee": playerFlee(); break;
-    }
-    if (combatState.active && !combatState.playerTurn) {
-        setTimeout(monsterTurn, 1000);
-    }
-    updateCombatUI();
 }
 
 function playerAttack() {
-    // Requer: playerState, combatState (globais de game-main.js)
-    // Requer: addCombatLog, checkCombatStatus (deste módulo)
-    if (!playerState.id || !combatState.currentMonster) return;
-    const baseDamage = playerState.attributes.strength + (playerState.equipment.weapon ? playerState.equipment.weapon.stats.attack || 0 : 0);
-    const monsterDefense = combatState.currentMonster.defense;
-    let damageDealt = Math.max(1, baseDamage - monsterDefense + Math.floor(Math.random() * 5 - 2));
-    combatState.monsterCurrentHp -= damageDealt;
-    addCombatLog(`${playerState.name} ataca ${combatState.currentMonster.name} causando ${damageDealt} de dano.`);
-    checkCombatStatus();
-}
+    if (!window.combatState.active || !window.combatState.playerTurn) return;
 
-function playerUseSkill(skillId) {
-    // Requer: playerState, combatState (globais de game-main.js)
-    // Requer: addCombatLog, checkCombatStatus (deste módulo)
-    if (!playerState.id || !combatState.currentMonster) return;
-    const skill = playerState.skills.find(s => s.id === skillId);
-    if (!skill) { addCombatLog("Habilidade desconhecida!"); combatState.playerTurn = true; return; }
-    if (playerState.mp < skill.cost) { addCombatLog("MP insuficiente para usar " + skill.name + "!"); combatState.playerTurn = true; return; }
-    playerState.mp -= skill.cost;
-    addCombatLog(`${playerState.name} usa ${skill.name}!`);
-    if (skill.target === "enemy") {
-        let damageDealt;
-        if (skill.type === "physical") damageDealt = Math.max(1, Math.floor((playerState.attributes.strength * skill.power) - combatState.currentMonster.defense));
-        else if (skill.type === "magical") damageDealt = Math.max(1, Math.floor((playerState.attributes.intelligence * skill.power) - (combatState.currentMonster.magicDefense || 0)));
-        combatState.monsterCurrentHp -= damageDealt;
-        addCombatLog(`${skill.name} causa ${damageDealt} de dano em ${combatState.currentMonster.name}.`);
-    } else if (skill.type === "healing" && skill.target === "self") {
-        const amountHealed = Math.floor(playerState.maxHp * skill.power);
-        playerState.hp = Math.min(playerState.maxHp, playerState.hp + amountHealed);
-        addCombatLog(`${playerState.name} se cura em ${amountHealed} HP.`);
+    const player = window.playerState;
+    const monster = window.combatState.currentMonster;
+    let damage = Math.max(1, player.attributes.strength + (player.equipment.weapon ? player.equipment.weapon.stats.attack || 0 : 0) - (monster.defense || 0));
+    // Adicionar alguma variação de dano
+    damage = Math.floor(damage * (Math.random() * 0.2 + 0.9)); // 90% a 110% do dano
+
+    window.combatState.monsterCurrentHp -= damage;
+    addLogMessage(`${player.name} ataca ${monster.name} causando ${damage} de dano.`, "player-attack");
+
+    checkCombatEnd();
+    if (window.combatState.active) {
+        window.combatState.playerTurn = false;
+        if (typeof window.updateUI === 'function') window.updateUI();
+        renderCombatUI(); // Atualiza HP do monstro
+        setTimeout(monsterAttack, 1000); // Monstro ataca após 1 segundo
     }
-    checkCombatStatus();
 }
 
-function playerFlee() {
-    // Requer: playerState (global de game-main.js)
-    // Requer: addCombatLog, endCombat (deste módulo)
-    if (!playerState.id) return;
-    const fleeChance = 0.5 + (playerState.attributes.agility / 100);
-    if (Math.random() < fleeChance) {
-        addCombatLog("Você conseguiu fugir!");
-        endCombat(false);
+function monsterAttack() {
+    if (!window.combatState.active || window.combatState.playerTurn) return;
+
+    const player = window.playerState;
+    const monster = window.combatState.currentMonster;
+    const skillToUse = monster.skills && monster.skills.length > 0 ? monster.skills[Math.floor(Math.random() * monster.skills.length)] : { name: "Ataque Básico", power: 1.0 };
+    
+    let damage = Math.max(1, Math.floor((monster.attack || 5) * (skillToUse.power || 1.0) - (player.attributes.defense || 0))); // Assumindo que player.attributes.defense existe
+    // Adicionar alguma variação de dano
+    damage = Math.floor(damage * (Math.random() * 0.2 + 0.9)); // 90% a 110% do dano
+
+    player.hp -= damage;
+    addLogMessage(`${monster.name} usa ${skillToUse.name} em ${player.name} causando ${damage} de dano.`, "monster-attack");
+
+    if (player.hp <= 0) {
+        player.hp = 0;
+        addLogMessage(`${player.name} foi derrotado!`, "defeat");
+        endCombat(false); // Jogador perdeu
     } else {
-        addCombatLog("Falha ao fugir!");
+        window.combatState.playerTurn = true;
+        if (typeof window.updateUI === 'function') window.updateUI();
+        renderCombatUI(); // Atualiza HP do jogador
     }
 }
 
-function monsterTurn() {
-    // Requer: combatState, playerState, updateUI (globais de game-main.js)
-    // Requer: addCombatLog, checkCombatStatus, updateCombatUI (deste módulo)
-    if (!combatState.active || combatState.playerTurn || !playerState.id || !combatState.currentMonster) return;
-    const monster = combatState.currentMonster;
-    const monsterSkill = monster.skills[Math.floor(Math.random() * monster.skills.length)];
-    const baseDamage = monster.attack * (monsterSkill.power || 1);
-    const playerDefense = (playerState.equipment.helmet?.stats?.defense || 0) + (playerState.equipment.chest?.stats?.defense || 0) + (playerState.equipment.gloves?.stats?.defense || 0) + (playerState.equipment.boots?.stats?.defense || 0);
-    let damageTaken = Math.max(1, Math.floor(baseDamage - playerDefense + Math.floor(Math.random() * 5 - 2)));
-    playerState.hp -= damageTaken;
-    addCombatLog(`${monster.name} usa ${monsterSkill.name} em ${playerState.name} causando ${damageTaken} de dano.`);
-    combatState.playerTurn = true;
-    checkCombatStatus();
-    if (typeof updateUI === "function") updateUI();
-    updateCombatUI();
-}
-
-function checkCombatStatus() {
-    // Requer: playerState, combatState (globais de game-main.js)
-    // Requer: addCombatLog, endCombat (deste módulo)
-    if (!playerState.id || !combatState.currentMonster) return;
-    if (combatState.monsterCurrentHp <= 0) {
-        addCombatLog(`${combatState.currentMonster.name} foi derrotado!`);
-        endCombat(true);
-        return;
-    }
-    if (playerState.hp <= 0) {
-        playerState.hp = 0;
-        addCombatLog(`${playerState.name} foi derrotado!`);
-        endCombat(false);
-        return;
+function checkCombatEnd() {
+    if (window.combatState.monsterCurrentHp <= 0) {
+        addLogMessage(`${window.combatState.currentMonster.name} foi derrotado!`, "victory");
+        endCombat(true); // Jogador venceu
     }
 }
 
-function endCombat(victory) {
-    // Requer: playerState, combatState, updateUI, savePlayerCharacterData (globais de game-main.js)
-    // Requer: addCombatLog, levelUp, prepareDungeonScreen (deste módulo)
-    if (!playerState.id) return;
-    combatState.active = false;
-    if (victory && combatState.currentMonster) {
-        const monster = combatState.currentMonster;
-        playerState.exp += monster.expReward;
-        playerState.gold += monster.goldReward;
-        addCombatLog(`Você ganhou ${monster.expReward} EXP e ${monster.goldReward} Ouro!`);
-        if (playerState.exp >= playerState.maxExp) levelUp();
+function endCombat(playerWon) {
+    window.combatState.active = false;
+    const monster = window.combatState.currentMonster;
+
+    if (playerWon) {
+        const goldGained = monster.goldReward || 0;
+        const expGained = monster.expReward || 0;
+        window.playerState.gold += goldGained;
+        window.playerState.exp += expGained;
+        window.showNotification(`Você venceu! Ganhou ${goldGained} Ouro e ${expGained} EXP.`, "success");
+        addLogMessage(`Você venceu! Ganhou ${goldGained} Ouro e ${expGained} EXP.`);
+        // Lógica de Level Up
+        if (window.playerState.exp >= window.playerState.maxExp) {
+            levelUp();
+        }
+    } else {
+        window.showNotification("Você foi derrotado!", "error");
+        addLogMessage("Você foi derrotado!");
+        // Penalidades? Ex: perder ouro, voltar para a cidade, etc.
+        window.playerState.hp = 1; // Deixa o jogador com 1 HP
     }
-    combatState.currentMonster = null;
-    if (typeof updateUI === "function") updateUI();
-    prepareDungeonScreen(); 
-    if (typeof savePlayerCharacterData === "function") savePlayerCharacterData();
+
+    // Restaurar stats do jogador se foram modificados por buffs/debuffs durante o combate
+    if (window.combatState.playerOriginalStats) {
+        // Apenas HP e MP são restaurados para o estado pré-combate se não for derrota total
+        // Atributos podem ter sido alterados por equipamentos, então não restaurar cegamente
+        // playerState.hp = combatState.playerOriginalStats.hp; 
+        // playerState.mp = combatState.playerOriginalStats.mp;
+    }
+
+    window.combatState.currentMonster = null;
+    if (typeof window.savePlayerCharacterData === 'function') window.savePlayerCharacterData();
+    if (typeof window.updateUI === 'function') window.updateUI();
+    // Volta para a tela de seleção do calabouço após um tempo
+    setTimeout(() => {
+        prepareDungeonScreen();
+    }, 3000);
 }
 
 function levelUp() {
-    // Requer: playerState, showNotification (globais de game-main.js)
-    // Requer: addCombatLog (deste módulo)
-    if (!playerState.id) return;
-    playerState.level++;
-    playerState.exp = playerState.exp - playerState.maxExp;
-    playerState.maxExp = Math.floor(playerState.maxExp * 1.5);
-    playerState.maxHp += 10;
-    playerState.maxMp += 5;
-    playerState.hp = playerState.maxHp;
-    playerState.mp = playerState.maxMp;
-    playerState.attributes.strength += 1;
-    playerState.attributes.agility += 1;
-    playerState.attributes.intelligence += 1;
-    playerState.attributes.vitality += 1;
-    if (typeof showNotification === "function") showNotification(`Você subiu para o Nível ${playerState.level}!`, "success");
-    addCombatLog(`Você subiu para o Nível ${playerState.level}!`);
+    window.playerState.level++;
+    window.playerState.exp = 0; // Ou window.playerState.exp -= window.playerState.maxExp;
+    window.playerState.maxExp = Math.floor(window.playerState.maxExp * 1.5); // Aumenta a EXP necessária
+    window.playerState.maxHp += 10; // Aumentos de exemplo
+    window.playerState.hp = window.playerState.maxHp; // Cura total no level up
+    window.playerState.maxMp += 5;
+    window.playerState.mp = window.playerState.maxMp;
+    // Aumentar atributos (exemplo simples, pode ser baseado na classe)
+    window.playerState.attributes.strength += 1;
+    window.playerState.attributes.agility += 1;
+    window.playerState.attributes.intelligence += 1;
+    window.playerState.attributes.vitality += 1;
+    window.showNotification(`Parabéns! Você alcançou o Nível ${window.playerState.level}!`, "success");
+    addLogMessage(`${window.playerState.name} alcançou o Nível ${window.playerState.level}!`);
+    if (typeof window.updateUI === 'function') window.updateUI();
+    if (typeof window.savePlayerCharacterData === 'function') window.savePlayerCharacterData();
 }
 
-function addCombatLog(message) {
-    // Requer: combatState (global de game-main.js)
-    combatState.log.push(message);
-    const combatLogEl = document.getElementById("combat-log-dungeon"); 
-    if (combatLogEl) {
-        const logEntry = document.createElement("p");
-        logEntry.textContent = message;
-        logEntry.classList.add("combat-log-entry");
-        combatLogEl.appendChild(logEntry);
-        combatLogEl.scrollTop = combatLogEl.scrollHeight;
+function playerUseSkill() {
+    // Requer: playerState, combatState, showNotification, updateUI, savePlayerCharacterData, renderCombatUI, addLogMessage, monsterAttack
+    if (!window.combatState.active || !window.combatState.playerTurn) return;
+
+    // Lógica para selecionar e usar uma habilidade
+    // Isso exigirá uma UI para seleção de habilidades
+    const skills = window.playerState.skills || [];
+    if (skills.length === 0) {
+        window.showNotification("Você não tem habilidades para usar.", "warning");
+        return;
+    }
+
+    // Exemplo simplificado: usa a primeira habilidade disponível
+    const skill = skills[0]; 
+
+    if (window.playerState.mp < skill.cost) {
+        window.showNotification("MP insuficiente para usar esta habilidade!", "error");
+        return;
+    }
+
+    window.playerState.mp -= skill.cost;
+    let effectValue;
+
+    if (skill.type === "physical" || skill.type === "magical") {
+        const playerAttackStat = skill.type === "physical" ? window.playerState.attributes.strength : window.playerState.attributes.intelligence;
+        const monsterDefense = window.combatState.currentMonster.defense || 0;
+        effectValue = Math.max(1, Math.floor(playerAttackStat * skill.power - monsterDefense));
+        effectValue = Math.floor(effectValue * (Math.random() * 0.2 + 0.9)); // Variação
+        window.combatState.monsterCurrentHp -= effectValue;
+        addLogMessage(`${window.playerState.name} usa ${skill.name} em ${window.combatState.currentMonster.name} causando ${effectValue} de dano.`, "player-skill");
+    } else if (skill.type === "healing") {
+        effectValue = Math.floor(window.playerState.maxHp * skill.power);
+        window.playerState.hp = Math.min(window.playerState.maxHp, window.playerState.hp + effectValue);
+        addLogMessage(`${window.playerState.name} usa ${skill.name} e cura ${effectValue} de HP.`, "player-skill");
     } else {
-        console.warn("Elemento de log de combate (combat-log-dungeon) não encontrado ao tentar adicionar mensagem.");
+        addLogMessage(`${window.playerState.name} tenta usar ${skill.name}, mas o tipo de habilidade é desconhecido.`, "warning");
+        // Reembolsar MP se a habilidade não fez nada
+        window.playerState.mp += skill.cost;
+        if (typeof window.updateUI === 'function') window.updateUI();
+        return;
+    }
+
+    checkCombatEnd();
+    if (window.combatState.active) {
+        window.combatState.playerTurn = false;
+        if (typeof window.updateUI === 'function') window.updateUI();
+        renderCombatUI();
+        setTimeout(monsterAttack, 1000);
     }
 }
-function renderCombatLog() { /* Log é adicionado diretamente em addCombatLog */ }
 
-// As funções prepareDungeonScreen e updateCombatUI serão chamadas por switchSection e updateUI em game-main.js
-// quando playerState.activeSection === "calabouco".
+function playerUseItem() {
+    // Requer: playerState, combatState, showNotification, updateUI, savePlayerCharacterData, renderCombatUI, addLogMessage, monsterAttack
+    if (!window.combatState.active || !window.combatState.playerTurn) return;
+
+    // Lógica para selecionar e usar um item do inventário
+    // Isso exigirá uma UI para seleção de itens
+    // Exemplo: abrir um modal com o inventário e permitir clicar em um item consumível
+    window.showNotification("Funcionalidade de usar item em combate ainda não implementada.", "warning");
+    // Exemplo de uso de poção de HP:
+    /*
+    const potion = playerState.inventory.find(item => item && item.id === "potion_hp_small");
+    if (potion) {
+        playerState.hp = Math.min(playerState.maxHp, playerState.hp + potion.effect.hpBoost);
+        // Remover item do inventário
+        const itemIndex = playerState.inventory.findIndex(item => item && item.id === "potion_hp_small");
+        if (itemIndex > -1) playerState.inventory.splice(itemIndex, 1, null); // Remove e deixa o slot vazio ou null
+        
+        addLogMessage(`${playerState.name} usa ${potion.name} e recupera ${potion.effect.hpBoost} de HP.`, "player-item");
+        checkCombatEnd(); // Embora improvável que um item termine o combate, é uma boa prática
+        if (combatState.active) {
+            combatState.playerTurn = false;
+            updateUI();
+            renderCombatUI();
+            setTimeout(monsterAttack, 1000);
+        }
+    } else {
+        showNotification("Nenhuma poção de HP encontrada no inventário.", "warning");
+    }
+    */
+}
+
+function playerFlee() {
+    if (!window.combatState.active || !window.combatState.playerTurn) return;
+
+    // Lógica de fuga. Exemplo: chance de 50% de sucesso
+    if (Math.random() < 0.5) {
+        addLogMessage(`${window.playerState.name} tenta fugir e consegue!`, "info");
+        window.showNotification("Você conseguiu fugir!", "success");
+        endCombat(false); // Considera como uma "perda" em termos de recompensas, mas sem penalidades de morte
+    } else {
+        addLogMessage(`${window.playerState.name} tenta fugir mas falha!`, "warning");
+        window.showNotification("Falha ao tentar fugir!", "error");
+        window.combatState.playerTurn = false;
+        if (typeof window.updateUI === 'function') window.updateUI();
+        renderCombatUI();
+        setTimeout(monsterAttack, 1000);
+    }
+}
+
+// Expor funções se necessário
+window.initializeDungeon = initializeDungeon;
+window.prepareDungeonScreen = prepareDungeonScreen;
+window.startCombat = startCombat;
+window.renderCombatUI = renderCombatUI; // Expor para ser chamado por updateUI se necessário
+window.playerAttack = playerAttack;
+window.playerUseSkill = playerUseSkill;
+window.playerUseItem = playerUseItem;
+window.playerFlee = playerFlee;
+window.monsterAttack = monsterAttack;
+window.addLogMessage = addLogMessage;
+
+// Chamar a inicialização quando o DOM estiver pronto
+// Isso será chamado pelo game-main.js quando a seção for ativada ou no carregamento inicial
+// document.addEventListener("DOMContentLoaded", initializeDungeon);
 
